@@ -40,6 +40,7 @@ try:
                 total_volume+=vol_para.AsDouble()
 
     total_volume = total_volume*0.3048*0.3048*0.3048
-    print("Total Volume of {0} is {1} m3".format(selected_switch, total_volume))
+    forms.alert("Total Volume of {} in active view is {} m3".format(selected_switch,total_volume),
+                exitscript=True)
 except: # exception to deal with user exiting the application
     pass 

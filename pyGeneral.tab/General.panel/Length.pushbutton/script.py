@@ -25,5 +25,5 @@ if selection:
             total_length+=len_para.AsDouble()
 
 total_length = total_length*0.3048
-print("Total length is {} m".format(total_length))
-
+forms.alert("Total Length is {} m".format(total_length),
+                exitscript=True)
