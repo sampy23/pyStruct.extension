@@ -8,11 +8,11 @@ from pyrevit.framework import List
 
 doc =__revit__.ActiveUIDocument.Document
 uidoc =__revit__.ActiveUIDocument
-curview = revit.activeview
+
+# make sure active view is not a sheet
+curview = doc.ActiveView
 
 try:
-    # make sure active view is not a sheet
-    curview = revit.activeview
     if isinstance(curview, DB.ViewSheet):
         forms.alert("You're on a Sheet. Activate a model view please.",
                     exitscript=True)
@@ -38,14 +38,14 @@ try:
             value_rule = DB.FilterStringRule(param_prov,param_equality,target_tag ,True)
             param_filter = DB.ElementParameterFilter(value_rule)
 
-            walls = DB.FilteredElementCollector(doc, curview.Id)\
+            elements = DB.FilteredElementCollector(doc, curview.Id)\
                     .OfCategory(target_category)\
                     .WhereElementIsNotElementType()\
                     .WherePasses(param_filter)\
                     .ToElementIds() # select category based on the rule
                     
-            if walls:
-                uidoc.Selection.SetElementIds(walls) 
+            if elements:
+                uidoc.Selection.SetElementIds(elements) 
                 flag = 1
                 break
                 

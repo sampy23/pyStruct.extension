@@ -1,5 +1,5 @@
 __doc__="This converts beam joints to \'Disallow\' Join state"
-__title__="Disallow\Join" #Title of the extension
+__title__="Disallow\nJoin" #Title of the extension
 __author__ = "Shahabaz Sha"
 
 from pyrevit import revit, DB
@@ -10,7 +10,8 @@ doc =__revit__.ActiveUIDocument.Document
 uidoc =__revit__.ActiveUIDocument
 
 # make sure active view is not a sheet
-curview = revit.activeview
+curview = doc.ActiveView
+
 if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)

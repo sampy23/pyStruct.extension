@@ -9,8 +9,11 @@ from pyrevit import forms
 
 Taggable = namedtuple('Taggable', ['tag_type', 'element_type'])
 
+doc =__revit__.ActiveUIDocument.Document
+
 # make sure active view is not a sheet
-curview = revit.activeview
+curview = doc.ActiveView
+
 if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
@@ -46,5 +49,7 @@ for elid in target_elements:
 
 if untagged_elements and tagged_elements:
     selection.set_to(untagged_elements)
+elif not untagged_elements and tagged_elements:
+    forms.alert('All columns in current view have tags.')
 elif not tagged_elements:
     forms.alert('No columns in current view have tags.')

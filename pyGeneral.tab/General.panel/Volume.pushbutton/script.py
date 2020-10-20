@@ -8,23 +8,34 @@ from pyrevit import forms
 # Getting selection from user
 __context__ = 'Selection'
 
+doc =__revit__.ActiveUIDocument.Document
+
 # make sure active view is not a sheet
-curview = revit.activeview
+curview = doc.ActiveView
+
 if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
 
 selection = revit.get_selection()
-curview = revit.activeview
-builtin_enum =DB.BuiltInParameter.CURVE_ELEM_LENGTH
+builtin_enum = DB.BuiltInParameter.HOST_VOLUME_COMPUTED
+
+warning_count = 0 # warning fuse
+total_volume = 0.0
+
 if selection:    
-    total_volume = 0.0
     for ele in selection:
-        vol_para = ele.Parameter[DB.BuiltInParameter.HOST_VOLUME_COMPUTED]
+        vol_para = ele.Parameter[builtin_enum]
         if vol_para:
             total_volume+=vol_para.AsDouble()
+        else:
+            if warning_count < 10:
+                forms.alert("Warning!!! {0} in the selection has no volume parameter".format(ele.Category.Name),
+                        exitscript=False)
+                warning_count+=1
 
-total_volume = total_volume*0.3048
-forms.alert("Total Volume is {} m3".format(total_volume),
-                exitscript=True)
+if total_volume:
+    total_volume = total_volume*0.3048*0.3048*0.3048
+    forms.alert("Total Volume is {} m3".format(total_volume),
+                    exitscript=True)
 

@@ -11,8 +11,11 @@ from pyrevit import forms
 Taggable = namedtuple('Taggable', ['tag_type', 'element_type'])
 
 
+doc =__revit__.ActiveUIDocument.Document
+
 # make sure active view is not a sheet
-curview = revit.activeview
+curview = doc.ActiveView
+
 if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)

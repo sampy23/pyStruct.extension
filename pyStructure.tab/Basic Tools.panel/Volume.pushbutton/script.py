@@ -5,8 +5,11 @@ __author__ = "Shahabaz Sha"
 from pyrevit import revit, DB, UI
 from pyrevit import forms
  
- # make sure active view is not a sheet
-curview = revit.activeview
+doc =__revit__.ActiveUIDocument.Document
+
+# make sure active view is not a sheet
+curview = doc.ActiveView
+
 if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
@@ -24,11 +27,10 @@ try:
         forms.CommandSwitchWindow.show(sorted(options.keys()),
                                     message='Select volume of category:')
 
-    curview = revit.activeview
     if selected_switch:
         target = options[selected_switch]
         
-        target_elements = DB.FilteredElementCollector(revit.doc, curview.Id)\
+        target_elements = DB.FilteredElementCollector(doc, curview.Id)\
                 .OfCategory(target)\
                 .WhereElementIsNotElementType()\
                 .ToElements()

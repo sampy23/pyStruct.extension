@@ -11,10 +11,10 @@ __context__ = 'Selection'
 
 doc =__revit__.ActiveUIDocument.Document
 uidoc =__revit__.ActiveUIDocument
-curview = revit.activeview
 
 # make sure active view is not a sheet
-curview = revit.activeview
+curview = doc.ActiveView
+
 if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
