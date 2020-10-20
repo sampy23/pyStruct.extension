@@ -6,7 +6,7 @@ from pyrevit import revit, DB
 from pyrevit import forms
 from pyrevit.framework import List
 
-
+# test command
 doc =__revit__.ActiveUIDocument.Document
 uidoc =__revit__.ActiveUIDocument
 
