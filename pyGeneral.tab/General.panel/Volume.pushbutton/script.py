@@ -25,5 +25,6 @@ if selection:
             total_volume+=vol_para.AsDouble()
 
 total_volume = total_volume*0.3048
-print("Total Volume is {} m3".format(total_volume))
+forms.alert("Total Volume is {} m3".format(total_volume),
+                exitscript=True)
 
