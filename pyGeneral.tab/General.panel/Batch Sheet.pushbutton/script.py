@@ -221,7 +221,7 @@ try:
     # Creating a dictionary
     options_category = {'Write to excel': write_to_excel,
         'Read from excel': read_from_excel,
-        'Open excel': open_excel
+        # 'Open excel': open_excel
     }
     selected_switch_category = \
         forms.CommandSwitchWindow.show(sorted(options_category.keys()),
