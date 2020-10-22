@@ -81,12 +81,16 @@ options_parameter = {'Mark': DB.BuiltInParameter.ALL_MODEL_MARK, # all
     "Level": DB.BuiltInParameter.LEVEL_PARAM
 }
 
+
 selected_switch_parameter = \
     forms.CommandSwitchWindow.show(sorted(options_parameter.keys()),
                                 message='Search for parameter in {0}'.format(options_category.keys()))
 
-target_parameter = options_parameter[selected_switch_parameter]
-target_category = options_category[category_name]
+if selected_switch_parameter:
+    target_parameter = options_parameter[selected_switch_parameter]
+    target_category = options_category[category_name]
+else:# to deal with user pressing esc button
+    sys.exit()
 
 valuestring = False
 if selected_switch_parameter in ["Z offset value",'Elevation at top','Elevation at bottom',"Height offset from level",
