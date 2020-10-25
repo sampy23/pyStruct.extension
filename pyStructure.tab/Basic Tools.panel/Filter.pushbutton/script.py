@@ -44,7 +44,10 @@ uidoc =__revit__.ActiveUIDocument
 
 def decode_valuestring(target_parameter_value,target_category,target_parameter):
     "Value strings are Revit representation and as such cannot be filtered using fast filters"
-    elementids = DB.FilteredElementCollector(__revit__.ActiveUIDocument.Document)\
+    doc =__revit__.ActiveUIDocument.Document
+    curview = doc.ActiveView
+
+    elementids = DB.FilteredElementCollector(doc, curview.Id)\
         .OfCategory(target_category)\
         .WhereElementIsNotElementType()\
         .ToElementIds() # select category 
@@ -151,7 +154,7 @@ else :#  value Strings
     decode_valuestring(target_parameter_value,target_category,target_parameter)
     
 
-elementids = DB.FilteredElementCollector(doc)\
+elementids = DB.FilteredElementCollector(doc, curview.Id)\
         .OfCategory(target_category)\
         .WhereElementIsNotElementType()\
         .WherePasses(param_filter)\
