@@ -14,10 +14,8 @@ doc =__revit__.ActiveUIDocument.Document
 
 print_mgr = revit.doc.PrintManager
 print_settings = [revit.doc.GetElement(x) for x in revit.doc.GetPrintSettingIds()] #List of print settings like A1,A3,..
-if print_settings:
-    selected_print_setting = print_settings[0] # we need only one
-else:
-    selected_print_setting = print_mgr.PrintSetup.InSession #If no print setting defined we can use default <in-session>
+
+selected_print_setting = print_mgr.PrintSetup.InSession #If no print setting defined we can use default <in-session>
 
 printers = list(Drawing.Printing.PrinterSettings.InstalledPrinters) # list of printers like Adobe PDF,Blubeam PDF
 printers = sorted(printers)
