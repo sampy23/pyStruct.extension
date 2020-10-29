@@ -11,6 +11,7 @@ import sys
 import os
 import subprocess
 import shutil
+import csv
 
 doc =__revit__.ActiveUIDocument.Document
 
@@ -98,40 +99,31 @@ def _create_sheet(inpu,t,sheet_group_para,_titleblock_id):
 def write_to_excel():
     """Option to write to excel by reading existing sheets groups from excel"""
     
-    sheet_group_para = str(forms.ask_for_string("Sheet Group",prompt='Enter unique sheet group parameter name',title=dest))
+    sheet_group_para = str(forms.ask_for_string("F+P Sheet Package",prompt='Enter unique sheet group parameter name',title=dest))
     title = ["Sheet Number","Sheet Name",sheet_group_para,"Approved By","Designed By","Reviewed By","Drawn By","Date"]
 
     try:
-        workbook = xlsxwriter.Workbook(dest)
-        worksheet = workbook.add_worksheet() 
-        # writing title into excel
-        for i,v in enumerate(title):
-            worksheet.write(0,i,v)
-        read_sheets(sheet_group_para)
-        row = 1
-        zipped_lists = zip(sheet_num,sheet_name,sheet_group,sheet_approved,sheet_designed,sheet_checked,sheet_drawn,sheet_issue)
-        sorted_zipped_lists = sorted(zipped_lists)
-        for inpu in sorted_zipped_lists:
-            worksheet.write(row, 0, inpu[0])
-            worksheet.write(row, 1, inpu[1])
-            worksheet.write(row, 2, inpu[2])
-            worksheet.write(row, 3, inpu[3])
-            worksheet.write(row, 4, inpu[4])
-            worksheet.write(row, 5, inpu[5])
-            worksheet.write(row, 6, inpu[6])
-            worksheet.write(row, 7, inpu[7])
-            row += 1
-        
-        column=0
-        for col in [sheet_num,sheet_name,sheet_group,sheet_approved,sheet_designed,sheet_checked,sheet_drawn,sheet_issue]:
-            width = max_width(col)
-            worksheet.set_column(column, column, width) #( first column,last_column,width)
-            column += 1
+        with open(dest,"wb") as file:
+            # writing title into csv
+            csv_writer = csv.writer(file)
+            csv_writer.writerows([title])
+            read_sheets(sheet_group_para) # function call
+            zipped_lists = zip(sheet_num,sheet_name,sheet_group,sheet_approved,sheet_designed,sheet_checked,sheet_drawn,sheet_issue)
+            sorted_zipped_lists = sorted(zipped_lists)
+            for inpu in sorted_zipped_lists:
+                inpu = [str(x) for x in inpu]
+                print(inpu)
+                csv_writer.writerows([inpu])
+            
+            # for col in [sheet_num,sheet_name,sheet_group,sheet_approved,sheet_designed,sheet_checked,sheet_drawn,sheet_issue]:
+            #     width = max_width(col)
+            #     worksheet.set_column(column, column, width) #( first column,last_column,width)
+            #     column += 1
 
-        workbook.close()
         open_excel()
 
     except Exception as ex:
+        print(ex)
         error = str(ex)
         if "len() of unsized object" in error:
             forms.alert("{0} parameter has no value".format(sheet_group_para),
@@ -211,7 +203,7 @@ def read_from_excel():
 
 try:
     os.chdir(sys.path[0])
-    src = "Sheet_groups.xlsx"
+    src = "Sheet_groups.csv"
     dest = os.path.join(os.path.expanduser("~/Documents"),src)
     if os.path.exists(dest): # if file already exits in destination no need to copy and overwrite
         pass
