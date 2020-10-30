@@ -218,7 +218,7 @@ def read_from_excel():
                     date_object = datetime_date.date()
                     string_date = date_object.isoformat()
                     date = string_date
-                sheet_issue.append(date)
+                sheet_issue.append(int_str(date)) # to filter out double quotes in date if any
 
             with DB.Transaction(doc, 'Create Sheet') as t:
                 try:
