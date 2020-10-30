@@ -57,6 +57,22 @@ def read_sheets(sheet_group_para):
         sheet_drawn.append(sheet.Parameter[DB.BuiltInParameter.SHEET_DRAWN_BY].AsString())
         sheet_issue.append(sheet.Parameter[DB.BuiltInParameter.SHEET_ISSUE_DATE].AsString())
 
+def int_str(cell_val):
+    """A helper function to convert floating values of excel. Excel stores every number as a float."""
+    if isinstance(cell_val,str):
+        if  ((cell_val[0] and cell_val[-1]) == "\"") or ((cell_val[0] and cell_val[-1]) == "\'") :
+            cell_val = cell_val[1:] # removing first double quote
+            cell_val = cell_val[:-1] # removing last double quote
+        return cell_val
+    else:
+        cell_val = str(cell_val)
+        list_cell_val = cell_val.split(".") 
+        if list_cell_val[-1] == "0": # here we assume that user never wants a sheet number named "xxx.0".
+        #                             # if he wants so, he is encouraged to input values in double quote
+            list_cell_val.pop(-1)   
+            cell_val = "".join(list_cell_val)
+            return cell_val
+
 def max_width(in_list):
     """Maximum width of contents in a column"""
     widths = []
@@ -181,7 +197,7 @@ def read_from_excel():
                 end = sheet.nrows
 
             for i in range(start,end):
-                sheet_num.append(sheet.cell_value(i, 0))
+                sheet_num.append(int_str(sheet.cell_value(i, 0)))
             for i in range(start,end):
                 sheet_name.append(sheet.cell_value(i, 1))
             for i in range(start,end):
@@ -206,8 +222,8 @@ def read_from_excel():
                 except Exception as e:
                     print(e)
                     t.rollback()
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
 try:
     os.chdir(sys.path[0])
