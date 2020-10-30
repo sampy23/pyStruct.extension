@@ -77,12 +77,15 @@ def int_str(cell_val):
 def max_width(in_list):
     """Maximum width of contents in a column"""
     widths = []
-    for x in in_list:
-        if x: #to deal with none
-            widths.append(len(x))
-        else:
-            widths.append(0)
-    return max(widths) + 5
+    if in_list: 
+        for x in in_list:
+            if x: #to deal with none
+                widths.append(len(x))
+            else:
+                widths.append(0)
+        return max(widths) + 5
+    else: # if there is no sheets
+        return 12 + 5
 
 def _create_sheet(inpu,t,sheet_group_para,_titleblock_id):
     exist_sheets = DB.FilteredElementCollector(doc) \
