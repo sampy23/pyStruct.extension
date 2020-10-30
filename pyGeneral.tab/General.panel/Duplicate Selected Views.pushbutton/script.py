@@ -27,21 +27,23 @@ def duplicate_views(viewlist, num=1,with_detailing=True):
                     logger.error('Error duplicating view "{}" | {}'
                                 .format(revit.query.get_name(el), duplerr))
 
+try:
+    selected_views = forms.select_views(filterfunc=duplicableview)
 
-selected_views = forms.select_views(filterfunc=duplicableview)
+    num = int(forms.ask_for_string("Enter number of views"))
 
-num = int(forms.ask_for_string("Enter number of views"))
+    if selected_views:
+        selected_option = \
+            forms.CommandSwitchWindow.show(
+                ['WITH Detailing',
+                'WITHOUT Detailing'],
+                message='Select duplication option:'
+                )
 
-if selected_views:
-    selected_option = \
-        forms.CommandSwitchWindow.show(
-            ['WITH Detailing',
-             'WITHOUT Detailing'],
-            message='Select duplication option:'
-            )
-
-    if selected_option:
-        duplicate_views(
-            selected_views,num,
-            with_detailing=True if selected_option == 'WITH Detailing'
-            else False)
+        if selected_option:
+            duplicate_views(
+                selected_views,num,
+                with_detailing=True if selected_option == 'WITH Detailing'
+                else False)
+except:
+    pass
