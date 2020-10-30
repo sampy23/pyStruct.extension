@@ -12,6 +12,7 @@ import os
 import subprocess
 import shutil
 import datetime
+import traceback
 
 doc =__revit__.ActiveUIDocument.Document
 
@@ -159,8 +160,11 @@ def write_to_excel():
         elif "[Errno 32] The process cannot access the file " in error:
             forms.alert("Close the open excel Sheet_groups and try again",
               exitscript=True)
+        elif "'NoneType' object has no attribute 'AsString'" in error:
+            forms.alert("Sheet Group parameter not defined",
+              exitscript=True)
         else:
-            print(error)
+            print(traceback.format_exc())
 
 def open_excel():
     """Option to open excel"""
@@ -230,10 +234,10 @@ def read_from_excel():
                         _create_sheet(inpu,t,sheet_group_para,_titleblock_id)
                     t.Commit()
                 except Exception as e:
-                    print(e)
+                    print(traceback.format_exc())
                     t.rollback()
         except Exception as e:
-            print(e)
+            print(traceback.format_exc())
 
 try:
     os.chdir(sys.path[0])
