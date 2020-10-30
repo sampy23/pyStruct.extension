@@ -11,6 +11,7 @@ import sys
 import os
 import subprocess
 import shutil
+import datetime
 
 doc =__revit__.ActiveUIDocument.Document
 
@@ -211,7 +212,13 @@ def read_from_excel():
             for i in range(start,end):
                 sheet_drawn.append(sheet.cell_value(i, 6))
             for i in range(start,end):
-                sheet_issue.append(sheet.cell_value(i, 7))
+                date = sheet.cell_value(i, 7)
+                if isinstance(date,float): # if date is not stored as string we will have to convert it into string
+                    datetime_date = xlrd.xldate_as_datetime(date, 0)
+                    date_object = datetime_date.date()
+                    string_date = date_object.isoformat()
+                    date = string_date
+                sheet_issue.append(date)
 
             with DB.Transaction(doc, 'Create Sheet') as t:
                 try:
