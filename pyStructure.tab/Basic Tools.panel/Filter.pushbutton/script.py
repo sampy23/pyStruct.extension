@@ -76,7 +76,7 @@ options_category = {'Structural Columns': DB.BuiltInCategory.OST_StructuralColum
     'Walls': DB.BuiltInCategory.OST_Walls,
     'Structural Framing': DB.BuiltInCategory.OST_StructuralFraming,
     'Floors': DB.BuiltInCategory.OST_Floors,
-    'Foundation':DB.BuiltInCategory.OST_StructuralFoundation,
+    'Structural Foundations':DB.BuiltInCategory.OST_StructuralFoundation,
     'Shaft Openings':DB.BuiltInCategory.OST_ShaftOpening
 }
 
