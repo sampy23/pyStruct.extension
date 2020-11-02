@@ -168,7 +168,7 @@ def write_to_excel():
 
 def open_excel():
     """Option to open excel"""
-    p = subprocess.Popen(["start",dest],shell=True)
+    p = subprocess.Popen(["start","EXCEL.EXE",dest],shell=True)
     p.communicate()
 
 def read_from_excel():
