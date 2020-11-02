@@ -98,8 +98,8 @@ def _create_sheet(inpu,t,sheet_group_para,_titleblock_id):
         new_phsheet = DB.ViewSheet.Create(doc,
                                     _titleblock_id)
         new_phsheet.SheetNumber = inpu[0]
-        new_phsheet.Name = inpu[1]                                
-        new_phsheet.LookupParameter(sheet_group_para).Set(inpu[2])
+        new_phsheet.Name = int_str(inpu[1])                              
+        new_phsheet.LookupParameter(sheet_group_para).Set(int_str(inpu[2]))
         new_phsheet.Parameter[DB.BuiltInParameter.SHEET_APPROVED_BY].Set(inpu[3])
         new_phsheet.Parameter[DB.BuiltInParameter.SHEET_DESIGNED_BY].Set(inpu[4])
         new_phsheet.Parameter[DB.BuiltInParameter.SHEET_CHECKED_BY].Set(inpu[5])
@@ -108,8 +108,8 @@ def _create_sheet(inpu,t,sheet_group_para,_titleblock_id):
     else:
         sheet_index = sheet_num.index(inpu[0])
         sheet = exist_sheets[sheet_index]
-        sheet.Name = inpu[1]                                
-        sheet.LookupParameter(sheet_group_para).Set(inpu[2])
+        sheet.Name = int_str(inpu[1])                               
+        sheet.LookupParameter(sheet_group_para).Set(int_str(inpu[2]))
         sheet.Parameter[DB.BuiltInParameter.SHEET_APPROVED_BY].Set(inpu[3])
         sheet.Parameter[DB.BuiltInParameter.SHEET_DESIGNED_BY].Set(inpu[4])
         sheet.Parameter[DB.BuiltInParameter.SHEET_CHECKED_BY].Set(inpu[5])
@@ -233,10 +233,10 @@ def read_from_excel():
                     for inpu in zip(sheet_num,sheet_name,sheet_group,sheet_approved,sheet_designed,sheet_checked,sheet_drawn,sheet_issue):
                         _create_sheet(inpu,t,sheet_group_para,_titleblock_id)
                     t.Commit()
-                except Exception as e:
+                except:
+                    t.RollBack()
                     print(traceback.format_exc())
-                    t.rollback()
-        except Exception as e:
+        except:
             print(traceback.format_exc())
 
 try:
