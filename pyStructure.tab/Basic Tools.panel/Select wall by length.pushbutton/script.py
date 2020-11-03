@@ -40,7 +40,7 @@ value_rule = DB.FilterDoubleRule(param_prov,param_equality,cparam/0.3048 ,1e-3) 
 param_filter = DB.ElementParameterFilter(value_rule)
 
 same_cat_elements = \
-        DB.FilteredElementCollector(revit.doc)\
+        DB.FilteredElementCollector(revit.doc,curview.Id)\
           .OfCategoryId(category_id)\
           .WhereElementIsNotElementType()\
           .WherePasses(param_filter)\
