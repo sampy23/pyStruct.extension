@@ -50,9 +50,9 @@ filered_elements = []
 
 for sim_element in same_cat_elements:
     r_type = sim_element.GetTypeId()
-    if r_type == type_id:
-        filered_elements.append(sim_element.Id)
-        num_walls = len(filered_elements)
+    # if r_type == type_id: # for same family type
+    filered_elements.append(sim_element.Id)
+    num_walls = len(filered_elements)
 
 
 if len(filered_elements) > 1:
