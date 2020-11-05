@@ -108,8 +108,8 @@ def _create_sheet(inpu,t,sheet_group_para,_titleblock_id):
     else:
         sheet_index = sheet_num.index(inpu[0])
         sheet = exist_sheets[sheet_index]
-        sheet.Name = int_str(inpu[1])                               
-        sheet.LookupParameter(sheet_group_para).Set(int_str(inpu[2]))
+        sheet.Name = str(inpu[1])                               
+        sheet.LookupParameter(sheet_group_para).Set(str(inpu[2]))
         sheet.Parameter[DB.BuiltInParameter.SHEET_APPROVED_BY].Set(inpu[3])
         sheet.Parameter[DB.BuiltInParameter.SHEET_DESIGNED_BY].Set(inpu[4])
         sheet.Parameter[DB.BuiltInParameter.SHEET_CHECKED_BY].Set(inpu[5])
