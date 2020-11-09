@@ -131,7 +131,7 @@ if selected_switch_parameter in ["Z offset value",'Elevation at top','Elevation 
             forms.alert("Parameter {0} not found in {1}".format(selected_switch_parameter,category_name),exitscript=True)
         param_id = DB.ElementId(target_parameter)
         param_prov = DB.ParameterValueProvider(param_id)
-        param_equality = DB.FilterNumericEquals() # equality class for string
+        param_equality = DB.FilterNumericEquals() # equality class for double
         value_rule = DB.FilterDoubleRule(param_prov,param_equality,target_parameter_value,1e-3)
         param_filter = DB.ElementParameterFilter(value_rule)
 elif selected_switch_parameter in ["Mark","Comments"] :# string values
@@ -145,7 +145,7 @@ elif selected_switch_parameter in ["Mark","Comments"] :# string values
     value_rule = DB.FilterStringRule(param_prov,param_equality,target_parameter_value ,True)
     param_filter = DB.ElementParameterFilter(value_rule)
 else :#  value Strings
-    """This param equality for this usually fails in python, so we go for for loop"""
+    """This param equality for this type is not available  in any language, so we go for for loop"""
     valuestring = True
     try:
         target_parameter_value = ele.Parameter[target_parameter].AsValueString()# As value strings got converted to strings
