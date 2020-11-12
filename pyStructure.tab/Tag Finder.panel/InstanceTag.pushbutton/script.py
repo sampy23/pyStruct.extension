@@ -19,7 +19,7 @@ if isinstance(curview, DB.ViewSheet):
 
 try:              
     wall_id = []
-    target_tag = str(forms.ask_for_string("Enter tag name"))
+    target_tag = str(forms.ask_for_string("Enter tag name")).lower()
     wall_id_list = None
 
     # Creating a dictionary
@@ -38,7 +38,7 @@ try:
 
     options_parameter = {'Mark': DB.BuiltInParameter.ALL_MODEL_MARK,
         'Comments':DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS ,
-        # 'Wall Number': 'Wall Number'
+        'Wall Number': 'Wall Number'
     }
 
     selected_switch_parameter = \
@@ -50,27 +50,31 @@ try:
     target_parameter = options_parameter[selected_switch_parameter]
 
 
-    # if target_parameter == 'Wall Number': # if parameter is shared
-    # # import wall by excluding family types as stored as a collector
-    #     wall_collector=DB.FilteredElementCollector(doc,curview.Id)\
-    #                         .OfCategory(target_category)\
-    #                         .WhereElementIsNotElementType()# Input case sensitive
-                            
-    #     for wall in wall_collector:
-    #         para = wall.LookupParameter(target_parameter)
-    #         para = para.AsString() #converts object into string
-    #         para = para.lower()
-        
-    #         if para == target_tag.lower():
-    #             wall_id.append(wall.Id) # returns element id
-    #             wall_id_list = List[DB.ElementId](wall_id)
-    #     try:
-    #         uidoc.Selection.SetElementIds(wall_id_list)
-    #     except :
-    #         forms.alert("Tag \"{0}\" not found!!!".format(target_tag))
-    #         pass
+    if target_parameter == 'Wall Number': # if parameter is shared
+    # import wall by excluding family types as stored as a collector
+        wall_collector=DB.FilteredElementCollector(doc,curview.Id)\
+                            .OfCategory(target_category)\
+                            .WhereElementIsNotElementType() \
+                            .ToElements()
+        for wall in wall_collector:
+            para_list = wall.GetParameters(target_parameter)
+            if len(para_list) > 1:
+                forms.alert("More than one parameter with name {0} found".format(target_parameter),
+                exitscript=True)
             
-    if True: 
+            para_value = para_list[0].AsString() #converts object into string)
+            if para_value: # some time parameter value may not be assigned in walls
+                para_value = para_value.lower()
+            if para_value == target_tag:
+                wall_id.append(wall.Id) # returns element id
+                wall_id_list = List[DB.ElementId](wall_id)
+        
+        if wall_id:
+            revit.get_selection().set_to(wall_id) 
+        else :
+            forms.alert("Wall \"{0}\" not found!!!".format(target_tag))
+            
+    else: 
         param_id = DB.ElementId(target_parameter)
         param_prov = DB.ParameterValueProvider(param_id)
         param_equality = DB.FilterStringEquals() # equality class
@@ -88,5 +92,5 @@ try:
         else:
             forms.alert("Tag \"{0}\" not found!!!".format(target_tag))
 
-except: # exception to deal with user exiting form
-    pass
+except Exception as e: # exception to deal with user exiting form
+    print(e)
