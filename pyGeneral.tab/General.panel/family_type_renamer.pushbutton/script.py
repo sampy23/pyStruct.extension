@@ -10,7 +10,8 @@ from collections import namedtuple,defaultdict
 
 xaml_file_name = "ui.xaml"
 
-Name_class = namedtuple('Parameters', ['Name'])
+Name_class = namedtuple('Dummy', ['Name'])
+Param_class = namedtuple('Parameters', ['Name',"Index"])
 
 doc =__revit__.ActiveUIDocument.Document
 
@@ -56,7 +57,6 @@ class PrintSheetsWindow(forms.WPFWindow):
 
     # private utils
     def _setup_param(self):
-        self.parameters.insert(0,Name_class(Name = None))
         self.param_0.ItemsSource = self.parameters
         self.param_1.ItemsSource = self.parameters
         self.param_2.ItemsSource = self.parameters
@@ -103,8 +103,11 @@ class PrintSheetsWindow(forms.WPFWindow):
         if self.selected_family:
             self.rename_list = [] # clear the list view in GUI when category changed
             self.rename_button.IsEnabled = False 
-            self.parameters = [i.Definition for i in self.family_ele_dict[self.selected_family.Name][0]\
-                                        .GetOrderedParameters()] # assuming parameter of one family has same parameters
+            self.parameters = [Param_class(Name = j.Definition.Name,Index = i+1) 
+                                            for i,j in enumerate(self.family_ele_dict[self.selected_family.Name][0].
+                                            GetOrderedParameters())] # assuming parameter of one family has same parameters
+                                            # i+1 to deal with next line insertion
+            self.parameters.insert(0,Param_class(Name = None,Index = 0))
             self._setup_param()
 
 
@@ -129,23 +132,29 @@ class PrintSheetsWindow(forms.WPFWindow):
         duplicate_counter = 0
         entered = False
         for ele in self.family_ele_dict[self.selected_family.Name]: # iterate through element in selected family type
-            if ele.GetParameters(self.selected_param_0.Name):
-                param_0 = ele.GetParameters(self.selected_param_0.Name)[0]
+            if ele.GetParameters(self.parameters[self.selected_param_0.Index].Name):
+                param_0 = ele.GetParameters(self.parameters[self.selected_param_0.Index].Name)[0] 
+                                                        # using index of parameter list to deal with duplicates 
+                                                        # if in future this program extended for instance parameters
             else:
                 param_0 = None
-            if ele.GetParameters(self.selected_param_1.Name):
-                param_1 = ele.GetParameters(self.selected_param_1.Name)[0]
+
+            if ele.GetParameters(self.parameters[self.selected_param_1.Index].Name):
+                param_1 = ele.GetParameters(self.parameters[self.selected_param_1.Index].Name)[0]
             else:
                 param_1 = None
-            if ele.GetParameters(self.selected_param_2.Name):
-                param_2 = ele.GetParameters(self.selected_param_2.Name)[0]
+
+            if ele.GetParameters(self.parameters[self.selected_param_2.Index].Name):
+                param_2 = ele.GetParameters(self.parameters[self.selected_param_2.Index].Name)[0]
             else:
                 param_2 = None
-            if  ele.GetParameters(self.selected_param_3.Name):
-                param_3 = ele.GetParameters(self.selected_param_3.Name)[0]
+
+            if  ele.GetParameters(self.parameters[self.selected_param_3.Index].Name):
+                param_3 = ele.GetParameters(self.parameters[self.selected_param_3.Index].Name)[0]
             else:
                 param_3 = None
             
+            # name formating
             new_name = [self.get_param_value(param_0) + " - " + self.get_param_value(param_1),\
                                                     self.get_param_value(param_2), self.get_param_value(param_3)]
             new_name = " X ".join([i for i in new_name if i!= ""])
@@ -202,7 +211,7 @@ class PrintSheetsWindow(forms.WPFWindow):
                                         .format(self.selected_family.Name),
                                         ok=True, yes=False, no=False)
                 else:
-                    forms.alert('Part or whole of  {0} not renamed'
+                    forms.alert('Some types of  {0} not renamed'
                                         .format(self.selected_family.Name),
                                         ok=True, yes=False, no=False)
 # let's show the window (modal)
