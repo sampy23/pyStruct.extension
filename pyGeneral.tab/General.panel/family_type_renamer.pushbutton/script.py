@@ -169,10 +169,12 @@ class PrintSheetsWindow(forms.WPFWindow):
             if (len(self.name_list) > 50) and not entered:
                 if not forms.alert('More than 50 element type found.'
                                     'Try purging {0} to reduce risk of program crashing.\n'
-                                    'It is a good idea to have a backup before continuing.'
+                                    'It is a good idea to have a backup before continuing.\n\n'
+                                    'Are sure you want to continue?'
                                     .format(self.selected_category.Name),
                                     title="Continue?",ok=False, yes=True, no=True):
                     self.Close()
+                    sys.exit()
                 else:
                     entered = True
         
