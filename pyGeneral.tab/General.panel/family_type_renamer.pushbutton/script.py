@@ -7,6 +7,7 @@ from pyrevit import forms
 import Autodesk.Revit.DB as DB
 import sys
 from collections import namedtuple,defaultdict
+import operator
 
 xaml_file_name = "ui.xaml"
 
@@ -56,6 +57,21 @@ class PrintSheetsWindow(forms.WPFWindow):
         self.rename_lb.ItemsSource = value
 
     # private utils
+    def _get_cat_list(self):
+        doc_elements = DB.FilteredElementCollector(doc)\
+                        .WhereElementIsElementType()\
+                        .ToElements()
+        cat_ids = set([ele.Category.Id for ele in doc_elements if ele.Category])
+        for i in cat_ids:
+            if DB.Category.GetCategory(doc,i):
+                self.dict_cat_id[DB.Category.GetCategory(doc,i)] = i
+        return sorted(self.dict_cat_id.keys(),key = operator.attrgetter("Name")) # sorting list of classes based on attr
+
+    def _setup_family(self):
+        self.family_cb.ItemsSource = sorted([Name_class(i) for i in self.family_ele_dict.keys()],\
+                                            key = operator.attrgetter("Name")) # sorting list of classes based on attr
+        self.family_cb.SelectedIndex = 0
+
     def _setup_param(self):
         self.param_0.ItemsSource = self.parameters
         self.param_1.ItemsSource = self.parameters
@@ -66,19 +82,6 @@ class PrintSheetsWindow(forms.WPFWindow):
         self.param_1.SelectedIndex = 0
         self.param_2.SelectedIndex = 0
         self.param_3.SelectedIndex = 0
-
-    def _setup_family(self):
-        self.family_cb.ItemsSource = [Name_class(i) for i in self.family_ele_dict.keys()]
-        self.family_cb.SelectedIndex = 0
-    def _get_cat_list(self):
-        doc_elements = DB.FilteredElementCollector(doc)\
-                .WhereElementIsElementType()\
-                .ToElements()
-        cat_ids = set([ele.Category.Id for ele in doc_elements if ele.Category])
-        for i in cat_ids:
-            if DB.Category.GetCategory(doc,i):
-                self.dict_cat_id[DB.Category.GetCategory(doc,i)] = i
-        return self.dict_cat_id.keys()
 
     # event handlers
     def category_changed(self, sender, args):
