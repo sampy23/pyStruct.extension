@@ -108,7 +108,7 @@
                     </ComboBox>
                 </StackPanel>
             </Grid>
-            <TextBlock TextWrapping="WrapWithOverflow" Margin="0,5,0,10"/>
+            <CheckBox x:Name="prefix_cb" Margin="10,10,0,5" IsChecked="False" IsEnabled="True">Ask for prefix</CheckBox>
             <Button Content="See Rename Format Result" Margin="5,0,10,0" Click="rename_format" Height="40" />
             <TextBlock TextWrapping="WrapWithOverflow" Margin="0,5,0,10" Height="26" 
                        Text="Types will be renamed in following format:" Padding="8,4,8,4"/>

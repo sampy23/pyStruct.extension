@@ -55,6 +55,10 @@ class PrintSheetsWindow(forms.WPFWindow):
     @rename_list.setter
     def rename_list(self, value):
         self.rename_lb.ItemsSource = value
+    
+    @property
+    def prefix_needed(self):
+        return self.prefix_cb.IsChecked
 
     # private utils
     def _get_cat_list(self):
@@ -134,6 +138,13 @@ class PrintSheetsWindow(forms.WPFWindow):
         self.name_list = []
         duplicate_counter = 0
         entered = False
+
+        if self.prefix_needed:
+            prefix = str(forms.ask_for_string("Prefix",prompt = "Enter prefix to be added to family type name",\
+                                                                                    title = "Prefix")).strip()
+            if prefix == "Prefix":
+                prefix = ""
+
         for ele in self.family_ele_dict[self.selected_family.Name]: # iterate through element in selected family type
             if ele.GetParameters(self.parameters[self.selected_param_0.Index].Name):
                 param_0 = ele.GetParameters(self.parameters[self.selected_param_0.Index].Name)[0] 
@@ -169,6 +180,8 @@ class PrintSheetsWindow(forms.WPFWindow):
                 new_name = new_name[3:] # removes leading -
             if new_name[:3] == " X ":
                 new_name = new_name[3:] # removes leading X
+            
+            new_name = prefix + " " + new_name
 
             if new_name not in self.name_list:
                 self.name_list.append(new_name)
