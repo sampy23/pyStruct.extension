@@ -3,7 +3,7 @@ Addins aiding  Structural Revit modelling and review using ironpython platform o
 
 ## Requirements
 * Revit
-* pyRevit (https://github.com/eirannejad/pyRevit/releases)
+* [pyRevit](https://github.com/eirannejad/pyRevit/releases)
 
 ## How to
 0. Clone the repository anywhere you want in your machine
