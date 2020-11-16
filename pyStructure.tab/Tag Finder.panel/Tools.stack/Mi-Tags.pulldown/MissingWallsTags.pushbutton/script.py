@@ -1,13 +1,17 @@
-__doc__="This addin selects beams with no associated tags in current view."
-__title__="Missing Beam \nTag Finder" #Title of the extension
+__doc__="This scripts selects Wall with no associated tags in current view."
+__title__="Missing Wall\nTag Finder" #Title of the extension
 __author__ = "Shahabaz Sha"
+
 
 #pylint: disable=import-error,invalid-name
 from collections import namedtuple
+
 from pyrevit import revit, DB
 from pyrevit import forms
 
+
 Taggable = namedtuple('Taggable', ['tag_type', 'element_type'])
+
 
 doc =__revit__.ActiveUIDocument.Document
 
@@ -18,9 +22,10 @@ if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
 
+
 target = Taggable(
-    tag_type=DB.BuiltInCategory.OST_StructuralFramingTags,
-    element_type=DB.BuiltInCategory.OST_StructuralFraming
+    tag_type=DB.BuiltInCategory.OST_WallTags,
+    element_type=DB.BuiltInCategory.OST_Walls
     )
 selection = revit.get_selection()
 
@@ -50,6 +55,6 @@ for elid in target_elements:
 if untagged_elements and tagged_elements:
     selection.set_to(untagged_elements)
 elif not untagged_elements and tagged_elements:
-    forms.alert('All beams in current view have tags.')
+    forms.alert('All walls in current view have tags.')
 elif not tagged_elements:
-    forms.alert('No beams in current view have tags.')
+    forms.alert('No walls have tags.')

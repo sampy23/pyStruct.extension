@@ -1,0 +1,4 @@
+layout:
+  - DuplicateBeamsTags
+  - DuplicateColumnsTags
+  - DuplicateWallsTags

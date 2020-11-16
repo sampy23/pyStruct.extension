@@ -1,11 +1,9 @@
-__doc__="This scripts selects Wall with no associated tags in current view."
-__title__="Missing Wall \nTag Finder" #Title of the extension
+__doc__="This scripts selects Column withs duplicate tags in current view."
+__title__="Duplicate Column\nTag Finder" #Title of the extension
 __author__ = "Shahabaz Sha"
 
-
 #pylint: disable=import-error,invalid-name
-from collections import namedtuple
-
+from collections import namedtuple,Counter
 from pyrevit import revit, DB
 from pyrevit import forms
 
@@ -22,10 +20,9 @@ if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
 
-
 target = Taggable(
-    tag_type=DB.BuiltInCategory.OST_WallTags,
-    element_type=DB.BuiltInCategory.OST_Walls
+    tag_type=DB.BuiltInCategory.OST_StructuralColumnTags,
+    element_type=DB.BuiltInCategory.OST_StructuralColumns
     )
 selection = revit.get_selection()
 
@@ -47,14 +44,9 @@ for eltid in target_tags:
     if elt.TaggedLocalElementId != DB.ElementId.InvalidElementId:
         tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)
 
-for elid in target_elements:
-    el = revit.doc.GetElement(elid)
-    if el.Id.IntegerValue not in tagged_elements:
-        untagged_elements.append(elid)
+dupes_id = [item for item, count in Counter(tagged_elements).items() if count > 1]
 
-if untagged_elements and tagged_elements:
-    selection.set_to(untagged_elements)
-elif not untagged_elements and tagged_elements:
-    forms.alert('All walls in current view have tags.')
-elif not tagged_elements:
-    forms.alert('No walls have tags.')
+if dupes_id:
+    selection.set_to(dupes_id)
+else:
+    forms.alert('No columns with duplicate tags found')

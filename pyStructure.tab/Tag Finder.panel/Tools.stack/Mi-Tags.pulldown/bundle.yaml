@@ -1,0 +1,4 @@
+layout:
+  - MissingBeamTags
+  - MissingColumnTags
+  - MissingWallsTags

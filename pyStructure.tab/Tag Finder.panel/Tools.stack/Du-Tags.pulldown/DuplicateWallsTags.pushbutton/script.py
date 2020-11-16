@@ -1,5 +1,5 @@
-__doc__="This addin selects Beams with duplicated tags in current view."
-__title__="Duplicate Beam \nTag Finder" #Title of the extension
+__doc__="This addin selects Walls with duplicate tags in current view."
+__title__="Duplicate Wall\nTag Finder" #Title of the extension
 __author__ = "Shahabaz Sha"
 
 #pylint: disable=import-error,invalid-name
@@ -19,8 +19,8 @@ if isinstance(curview, DB.ViewSheet):
                 exitscript=True)
 
 target = Taggable(
-    tag_type=DB.BuiltInCategory.OST_StructuralFramingTags,
-    element_type=DB.BuiltInCategory.OST_StructuralFraming
+    tag_type=DB.BuiltInCategory.OST_WallTags,
+    element_type=DB.BuiltInCategory.OST_Walls
     )
 selection = revit.get_selection()
 
@@ -47,4 +47,4 @@ dupes_id = [item for item, count in Counter(tagged_elements).items() if count > 
 if dupes_id:
     selection.set_to(dupes_id)
 else:
-    forms.alert('No beams with duplicate tags found')
+    forms.alert('No walls with duplicate tags found')
