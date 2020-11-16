@@ -1,4 +1,5 @@
-"""Batch duplicates the selected views with or without detailing."""
+__doc__= """A patch for duplicate view addin available in pyRevit.\nThis duplicates view n number of times, n being a user input value"""
+__title__="Duplicate\nView" #Title of the extension
 
 from pyrevit import revit, DB
 from pyrevit import forms
