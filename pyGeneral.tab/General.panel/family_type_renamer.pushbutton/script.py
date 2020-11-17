@@ -139,6 +139,7 @@ class PrintSheetsWindow(forms.WPFWindow):
         duplicate_counter = 0
         entered = False
 
+        prefix = None
         if self.prefix_needed:
             prefix = str(forms.ask_for_string("Prefix",prompt = "Enter prefix to be added to family type name",\
                                                                                     title = "Prefix")).strip()
@@ -180,8 +181,8 @@ class PrintSheetsWindow(forms.WPFWindow):
                 new_name = new_name[3:] # removes leading -
             if new_name[:3] == " X ":
                 new_name = new_name[3:] # removes leading X
-            
-            new_name = prefix + " " + new_name
+            if prefix:
+                new_name = prefix + " " + new_name
 
             if new_name not in self.name_list:
                 self.name_list.append(new_name)

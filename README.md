@@ -1,5 +1,5 @@
 # pyRevit-ext
-Addins aiding  Structural Revit modelling and review using ironpython platform on pyrevit.
+Addins aiding  Structural Revit modelling and review using pyrevit platform on ironpython.
 
 ## Requirements
 * Revit
