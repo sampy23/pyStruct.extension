@@ -207,6 +207,10 @@ class PrintSheetsWindow(forms.WPFWindow):
         self.rename_list = [Name_class(Name=i) for i in sorted(self.name_list)]
         self.rename_button.IsEnabled = True 
 
+    def search_txt_changed(self, sender, args):
+        """Handle text change in search box."""
+        print("hai")
+
     def rename(self,send,args):
         renamed = True
         with DB.Transaction(doc, 'Change Name') as t:
