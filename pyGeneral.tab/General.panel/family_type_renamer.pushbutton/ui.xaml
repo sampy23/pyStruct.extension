@@ -1,6 +1,6 @@
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Rename Family Type Based on Parameters" Height="710" Width="850" ShowInTaskbar="False" ResizeMode="CanResizeWithGrip"
+        Title="Rename Family Type Based on Parameters" Height="700" Width="850" ShowInTaskbar="False" ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen" HorizontalContentAlignment="Center">
     <Window.Resources>
 
@@ -30,7 +30,7 @@
 
     <DockPanel>
         <StackPanel Margin="10,10,9.6,0" DockPanel.Dock="Top" Height="275">
-            <TextBlock TextWrapping="WrapWithOverflow" Margin="0,5,0,10">
+            <TextBlock TextWrapping="WrapWithOverflow" Margin="5,5,10,5">
                     Select a category:
             </TextBlock>
             <ComboBox x:Name="category_cb" SelectionChanged="category_changed" Height="30" Margin="5,0,10,0">
@@ -42,16 +42,54 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBlock TextWrapping="WrapWithOverflow" Margin="0,5,0,10" Text="Select a Family"/>
-            <ComboBox x:Name="family_cb" SelectionChanged="family_changed" Height="30" Margin="5,0,10,0">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Name}" />
+            <TextBlock TextWrapping="WrapWithOverflow" Margin="5,5,0,5" Text="Select a Family"/>
+            <Grid Margin="0,0,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="49*" />
+                    <ColumnDefinition Width="157*"/>
+                    <ColumnDefinition Width="206*" />
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="family_cb" SelectionChanged="family_changed" Margin="5,0,10,-0.2" Grid.ColumnSpan="2">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Grid.Column="0" Margin="5,0"  Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Grid Grid.Column="2" Margin="0,0,0,0">
+                    <Grid Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="8,0,5,0"  Orientation="Horizontal">
+                            <TextBox x:Name="search1_tb" Height="25px" Padding="0,0,0,0"
+                            VerticalContentAlignment="Center"  Width="55" Margin="0,0,0,0" VerticalAlignment="Top" Text="Prefix"/>
                         </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+                        <StackPanel Grid.Column="1" Margin="8,0,5,0"  Orientation="Horizontal">
+                            <TextBox x:Name="search2_tb" Padding="0,0,0,0"
+                             VerticalContentAlignment="Center"  Width="55" Margin="0,0,0,0" Text="-" HorizontalContentAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="8,0,5,0"  Orientation="Horizontal">
+                            <TextBox x:Name="search3_tb" Padding="0,0,0,0"
+                             VerticalContentAlignment="Center"  Width="55" Margin="0,0,0,0" Text="x" HorizontalContentAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Margin="8,0,5,0"  Orientation="Horizontal">
+                            <TextBox x:Name="search4_tb" Padding="0,0,0,0"
+                             VerticalContentAlignment="Center"  Width="55" Margin="0,0,0,0" Text="x" HorizontalContentAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4" Margin="8,0,5,0"  Orientation="Horizontal">
+                            <TextBox x:Name="search5_tb" Height="25px" Padding="0,0,0,0"
+                            VerticalContentAlignment="Center"  Width="55" Margin="0,0,0,-0.2" VerticalAlignment="Top" Text="Suffix"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
             <Grid Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -108,13 +146,12 @@
                     </ComboBox>
                 </StackPanel>
             </Grid>
-            <CheckBox x:Name="prefix_cb" Margin="10,10,0,5" IsChecked="False" IsEnabled="True">Ask for prefix</CheckBox>
-            <Button Content="See Rename Format Result" Margin="5,0,10,0" Click="rename_format" Height="40" />
-            <TextBlock TextWrapping="WrapWithOverflow" Margin="0,5,0,10" Height="26" 
+            <Button Content="See Rename Format Result" Margin="5,20,10,0" Click="rename_format" Height="40" />
+            <TextBlock TextWrapping="WrapWithOverflow" Margin="0,25,0,10" Height="26" 
                        Text="Types will be renamed in following format:" Padding="8,4,8,4"/>
         </StackPanel>
-        <StackPanel Margin="10,10,9.2,0" DockPanel.Dock="Bottom" Height="396">
-            <ListView x:Name="rename_lb" Margin="10,0.6,10,10.4" AllowDrop="True" Height="313">
+        <StackPanel Margin="10,0,10,0" DockPanel.Dock="Bottom" Height="396">
+            <ListView x:Name="rename_lb" Margin="10,0,10,10.4" AllowDrop="True" Height="313">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="New Name                              " DisplayMemberBinding="{Binding Name}" Width="Auto"/>
@@ -133,7 +170,7 @@
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
-            <Button Name ="rename_button" Content="Rename Family Types" Margin="10,0,0,0" Click="rename" Height="40" />
+            <Button Name ="rename_button" Content="Rename Family Types" Margin="10,0,010,0" Click="rename" Height="40" />
         </StackPanel>
     </DockPanel>
 </Window>

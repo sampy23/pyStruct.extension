@@ -22,7 +22,7 @@ class PrintSheetsWindow(forms.WPFWindow):
         self.dict_cat_id = {}
         self.category_cb.ItemsSource = self._get_cat_list()
         self.category_cb.SelectedIndex = 0
-        self.rename_button.IsEnabled = False 
+        self.rename_button.IsEnabled = False
 
     @property
     def selected_category(self):
@@ -59,6 +59,26 @@ class PrintSheetsWindow(forms.WPFWindow):
     @property
     def prefix_needed(self):
         return self.prefix_cb.IsChecked
+
+    @property
+    def prefix(self):
+        return self.search1_tb.Text
+
+    @property
+    def sep_1(self):
+        return self.search2_tb.Text
+
+    @property
+    def sep_2(self):
+        return self.search3_tb.Text
+
+    @property
+    def sep_3(self):
+        return self.search4_tb.Text
+
+    @property
+    def suffix(self):
+        return self.search5_tb.Text
 
     # private utils
     def _get_cat_list(self):
@@ -139,12 +159,15 @@ class PrintSheetsWindow(forms.WPFWindow):
         duplicate_counter = 0
         entered = False
 
-        prefix = None
-        if self.prefix_needed:
-            prefix = str(forms.ask_for_string("Prefix",prompt = "Enter prefix to be added to family type name",\
-                                                                                    title = "Prefix")).strip()
-            if prefix == "Prefix":
-                prefix = ""
+        if self.prefix == "Prefix":
+            prefix = ""
+        else:
+            prefix = self.prefix
+
+        if self.suffix == "Suffix":
+            suffix = ""
+        else:
+            suffix = self.suffix
 
         for ele in self.family_ele_dict[self.selected_family.Name]: # iterate through element in selected family type
             if ele.GetParameters(self.parameters[self.selected_param_0.Index].Name):
@@ -170,27 +193,36 @@ class PrintSheetsWindow(forms.WPFWindow):
                 param_3 = None
             
             # name formating
-            new_name = [self.get_param_value(param_0) + " - " + self.get_param_value(param_1),\
-                                                    self.get_param_value(param_2), self.get_param_value(param_3)]
-            new_name = " X ".join([i for i in new_name if i!= ""])
-            new_name = new_name.replace("None","")
-            # string cleanup
-            if new_name[-3:] == " - ": 
-                new_name = new_name[:-3] # removes trailling -
-            if new_name[:3] == " - ": 
-                new_name = new_name[3:] # removes leading -
-            if new_name[:3] == " X ":
-                new_name = new_name[3:] # removes leading X
+            sep_1 = ""
+            sep_2 = ""
+            sep_2 = ""
+
             if prefix:
-                new_name = prefix + " " + new_name
+                new_name = prefix + " "
+            else:
+                new_name = ""
+            if self.get_param_value(param_0) not in ["","None"]:
+                new_name = new_name + self.get_param_value(param_0)
+                sep_1 = self.sep_1 # seperator to be added only if param_0 exists
+            if self.get_param_value(param_1) not in ["","None"]:
+                new_name = new_name + sep_1 + self.get_param_value(param_1)
+                sep_2 = self.sep_2 
+            if self.get_param_value(param_2) not in ["","None"]:
+                new_name = new_name + sep_2 + self.get_param_value(param_2)
+                sep_3 = self.sep_3
+            if self.get_param_value(param_3) not in ["","None"]:
+                new_name = new_name + sep_3 + self.get_param_value(param_3)
+            if suffix:
+                new_name = new_name + " " + suffix
+
+            new_name = new_name.replace("None","") # to replace None with ""
 
             if new_name not in self.name_list:
                 self.name_list.append(new_name)
-            else: 
-                if len(new_name):# enter if new_name is not an empty string: for some reason elif "" fails in some cases
-                    duplicate_counter += 1
-                    new_name = new_name  + " ({0})".format(duplicate_counter)
-                    self.name_list.append(new_name)
+            elif len(new_name):# enter if new_name is not an empty string
+                duplicate_counter += 1
+                new_name = new_name  + " ({0})".format(duplicate_counter)
+                self.name_list.append(new_name)
 
             if (len(self.name_list) > 50) and not entered:
                 if not forms.alert('More than 50 element type found.'
@@ -204,6 +236,11 @@ class PrintSheetsWindow(forms.WPFWindow):
                 else:
                     entered = True
         
+        if "" in self.name_list:
+            for i,j in enumerate(self.name_list):
+                if j == "":
+                    self.name_list[i] =  "{Empty Name}"
+        
         self.rename_list = [Name_class(Name=i) for i in sorted(self.name_list)]
         self.rename_button.IsEnabled = True 
 
@@ -213,7 +250,7 @@ class PrintSheetsWindow(forms.WPFWindow):
             try:
                 t.Start()
                 for ele,name in zip(self.family_ele_dict[self.selected_family.Name],self.name_list):
-                    if name: # sometime name may be empty which can open a can of worms
+                    if DB.NamingUtils.IsValidName(name):
                         ele.Name = name
                     else:
                         renamed = False
@@ -228,7 +265,7 @@ class PrintSheetsWindow(forms.WPFWindow):
                                         .format(self.selected_family.Name),
                                         ok=True, yes=False, no=False)
                 else:
-                    forms.alert('Some types of  {0} not renamed'
+                    forms.alert('Some types of  {0} not renamed because of invalid Revit name'
                                         .format(self.selected_family.Name),
                                         ok=True, yes=False, no=False)
 # let's show the window (modal)
