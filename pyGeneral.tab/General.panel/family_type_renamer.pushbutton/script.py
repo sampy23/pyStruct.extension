@@ -159,12 +159,12 @@ class PrintSheetsWindow(forms.WPFWindow):
         duplicate_counter = 0
         entered = False
 
-        if self.prefix == "_Prefix":
+        if self.prefix == "Prefix":
             prefix = ""
         else:
             prefix = self.prefix
 
-        if self.suffix == "_Suffix":
+        if self.suffix == "Suffix":
             suffix = ""
         else:
             suffix = self.suffix
@@ -219,11 +219,10 @@ class PrintSheetsWindow(forms.WPFWindow):
 
             if new_name not in self.name_list:
                 self.name_list.append(new_name)
-            else: 
-                if len(new_name):# enter if new_name is not an empty string: for some reason elif "" fails in some cases
-                    duplicate_counter += 1
-                    new_name = new_name  + " ({0})".format(duplicate_counter)
-                    self.name_list.append(new_name)
+            elif len(new_name):# enter if new_name is not an empty string
+                duplicate_counter += 1
+                new_name = new_name  + " ({0})".format(duplicate_counter)
+                self.name_list.append(new_name)
 
             if (len(self.name_list) > 50) and not entered:
                 if not forms.alert('More than 50 element type found.'
