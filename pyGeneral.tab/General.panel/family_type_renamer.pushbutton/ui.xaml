@@ -155,20 +155,9 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="New Name                              " DisplayMemberBinding="{Binding Name}" Width="Auto"/>
+                        <GridViewColumn Header="Valid Revit Name?                     " DisplayMemberBinding="{Binding Validity}" Width="Auto"/>
                     </GridView>
                 </ListView.View>
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="Template" Value="{StaticResource Default}"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding printable}" Value="False">
-                                <Setter Property="Template"
-                                Value="{StaticResource NonPrintableSheet}"/>
-                                <Setter Property="Foreground" Value="#bdbdbd" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ListView.ItemContainerStyle>
             </ListView>
             <Button Name ="rename_button" Content="Rename Family Types" Margin="10,0,010,0" Click="rename" Height="40" />
         </StackPanel>

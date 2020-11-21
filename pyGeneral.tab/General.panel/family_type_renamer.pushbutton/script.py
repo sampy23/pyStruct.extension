@@ -6,12 +6,12 @@ __author__ = "Shahabaz Sha"
 from pyrevit import forms
 import Autodesk.Revit.DB as DB
 import sys
-from collections import namedtuple,defaultdict
+from collections import namedtuple,defaultdict,Counter
 import operator
 
 xaml_file_name = "ui.xaml"
 
-Name_class = namedtuple('Dummy', ['Name'])
+Name_class = namedtuple('Dummy', ['Name',"Validity"])
 Param_class = namedtuple('Parameters', ['Name',"Index"])
 
 doc =__revit__.ActiveUIDocument.Document
@@ -92,7 +92,7 @@ class PrintSheetsWindow(forms.WPFWindow):
         return sorted(self.dict_cat_id.keys(),key = operator.attrgetter("Name")) # sorting list of classes based on attr
 
     def _setup_family(self):
-        self.family_cb.ItemsSource = sorted([Name_class(i) for i in self.family_ele_dict.keys()],\
+        self.family_cb.ItemsSource = sorted([Name_class(i,None) for i in self.family_ele_dict.keys()],\
                                             key = operator.attrgetter("Name")) # sorting list of classes based on attr
         self.family_cb.SelectedIndex = 0
 
@@ -224,8 +224,8 @@ class PrintSheetsWindow(forms.WPFWindow):
                 new_name = new_name  + " ({0})".format(duplicate_counter)
                 self.name_list.append(new_name)
 
-            if (len(self.name_list) > 50) and not entered:
-                if not forms.alert('More than 50 element type found.'
+            if (len(self.name_list) > 75) and not entered:
+                if not forms.alert('More than 75 element type found.'
                                     'Try purging {0} to reduce risk of program crashing.\n'
                                     'It is a good idea to have a backup before continuing.\n\n'
                                     'Are sure you want to continue?'
@@ -241,7 +241,7 @@ class PrintSheetsWindow(forms.WPFWindow):
                 if j == "":
                     self.name_list[i] =  "{Empty Name}"
         
-        self.rename_list = [Name_class(Name=i) for i in sorted(self.name_list)]
+        self.rename_list = [Name_class(Name=i,Validity=DB.NamingUtils.IsValidName(i)) for i in sorted(self.name_list)]
         self.rename_button.IsEnabled = True 
 
     def rename(self,send,args):
@@ -265,8 +265,9 @@ class PrintSheetsWindow(forms.WPFWindow):
                                         .format(self.selected_family.Name),
                                         ok=True, yes=False, no=False)
                 else:
-                    forms.alert('Some types of  {0} not renamed because of invalid Revit name'
-                                        .format(self.selected_family.Name),
+                    numb_false = Counter([i.Validity for i in self.rename_list])[False]
+                    forms.alert('{0} types of  {1} not renamed because of invalid Revit name'
+                                        .format(numb_false,self.selected_family.Name),
                                         ok=True, yes=False, no=False)
 # let's show the window (modal)
 PrintSheetsWindow().ShowDialog()
