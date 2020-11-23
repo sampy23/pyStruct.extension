@@ -2,3 +2,4 @@ layout:
   - MissingBeamTags
   - MissingColumnTags
   - MissingWallsTags
+  - MissingFoundationTags
