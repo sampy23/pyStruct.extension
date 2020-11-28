@@ -10,23 +10,26 @@ __context__ = 'Selection'
 
 doc =__revit__.ActiveUIDocument.Document
 
+def formatter(string):
+    return u'{0}\xb3'.format(string)
+
 def unit_from_type(unitype):
     if unittype == [DB.DisplayUnitType.DUT_CUBIC_FEET]:
-        return "ft^3" 
+        return formatter("ft")
     elif unittype == [DB.DisplayUnitType.DUT_CUBIC_METERS]:
-        return "m^3"
+        return formatter("m")
     elif unittype == [DB.DisplayUnitType.DUT_CUBIC_INCHES]:
-        return "in^3"
+        return formatter("in")
     elif unittype == [DB.DisplayUnitType.DUT_CUBIC_CENTIMETERS]:
-        return "cm^3"
+        return formatter("cm")
     elif unittype == [DB.DisplayUnitType.DUT_CUBIC_MILLIMETERS]:
-        return "mm^3"
+        return formatter("mm")
     elif unittype == [DB.DisplayUnitType.DUT_LITERS]:
         return "litres"
     elif unittype == [DB.DisplayUnitType.DUT_GALLONS_US]:
         return "US gallons"
     elif unittype == [DB.DisplayUnitType.DUT_CUBIC_YARDS]:
-        return "yd^3"
+        return formatter("yd")
 
 
 # make sure active view is not a sheet
@@ -74,7 +77,6 @@ else:
         reqd_unit = unit_from_type(unittype[0])
 
 if total_volume:
-    # total_volume = total_volume*0.3048*0.3048
     forms.alert("Total volume is {0} {1}".format(total_volume,reqd_unit),
                     exitscript=True)
 else:
