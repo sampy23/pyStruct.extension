@@ -47,6 +47,10 @@ class PrintSheetsWindow(forms.WPFWindow):
     @property
     def selected_param_3(self):
         return self.param_3.SelectedItem
+    
+    @property
+    def selected_param_4(self):
+        return self.param_4.SelectedItem
 
     @property
     def rename_list(self):
@@ -77,8 +81,12 @@ class PrintSheetsWindow(forms.WPFWindow):
         return self.search4_tb.Text
 
     @property
-    def suffix(self):
+    def sep_4(self):
         return self.search5_tb.Text
+
+    @property
+    def suffix(self):
+        return self.search6_tb.Text
 
     # private utils
     def _get_cat_list(self):
@@ -101,11 +109,13 @@ class PrintSheetsWindow(forms.WPFWindow):
         self.param_1.ItemsSource = self.parameters
         self.param_2.ItemsSource = self.parameters
         self.param_3.ItemsSource = self.parameters
+        self.param_4.ItemsSource = self.parameters
         
         self.param_0.SelectedIndex = 1
         self.param_1.SelectedIndex = 0
         self.param_2.SelectedIndex = 0
         self.param_3.SelectedIndex = 0
+        self.param_4.SelectedIndex = 0
 
     # event handlers
     def category_changed(self, sender, args):
@@ -192,6 +202,11 @@ class PrintSheetsWindow(forms.WPFWindow):
             else:
                 param_3 = None
             
+            if  ele.GetParameters(self.parameters[self.selected_param_4.Index].Name):
+                param_4 = ele.GetParameters(self.parameters[self.selected_param_4.Index].Name)[0]
+            else:
+                param_4 = None
+            
             # name formating
             sep_1 = ""
             sep_2 = ""
@@ -212,6 +227,9 @@ class PrintSheetsWindow(forms.WPFWindow):
                 sep_3 = self.sep_3
             if self.get_param_value(param_3) not in ["","None"]:
                 new_name = new_name + sep_3 + self.get_param_value(param_3)
+                sep_4 = self.sep_4
+            if self.get_param_value(param_4) not in ["","None"]:
+                new_name = new_name + sep_4 + self.get_param_value(param_4)
             if suffix:
                 new_name = new_name + " " + suffix
 
