@@ -44,17 +44,16 @@ selection = revit.get_selection()
 builtin_enum =DB.BuiltInParameter.HOST_VOLUME_COMPUTED
 if selection:    
     for ele in selection:
-        len_para = ele.Parameter[builtin_enum]
-        if len_para:
-            splitted_value = len_para.AsValueString().split(" ")
+        vol_para = ele.Parameter[builtin_enum]
+        if vol_para:
+            splitted_value = vol_para.AsValueString().split(" ")
             volume = float(splitted_value[0])
             if len(splitted_value) > 1:
-                unit.append(splitted_value[0]) # for area and volume revit return unit
+                unit.append(splitted_value[0]) # for area revit return unit
             else:
-                unitype.append(len_para.DisplayUnitType) # for volume unit is not returned so we use unit type
+                unitype.append(vol_para.DisplayUnitType) # for volume and length  unit is not returned so we use unit type
 
             total_volume+=volume
-
         else:
             if warning_count < 10:
                 forms.alert("Warning!!! {0} in the selection has no volume parameter".format(ele.Category.Name),
