@@ -3,3 +3,4 @@ layout:
   - MissingColumnTags
   - MissingWallsTags
   - MissingFoundationTags
+  - MissingFloorTags
