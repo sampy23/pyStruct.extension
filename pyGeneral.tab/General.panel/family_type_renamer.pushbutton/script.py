@@ -210,7 +210,8 @@ class PrintSheetsWindow(forms.WPFWindow):
             # name formating
             sep_1 = ""
             sep_2 = ""
-            sep_2 = ""
+            sep_3 = ""
+            sep_4 = ""
 
             if prefix:
                 new_name = prefix + " "
