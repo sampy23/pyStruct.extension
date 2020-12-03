@@ -5,7 +5,7 @@ __author__ = "Shahabaz Sha"
 from pyrevit import revit, DB, UI
 from pyrevit import forms
 from pyrevit.framework import List
-
+from collections import defaultdict
 
 doc =__revit__.ActiveUIDocument.Document
 uidoc =__revit__.ActiveUIDocument
@@ -17,6 +17,8 @@ if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
 
+param_dic = defaultdict(list)
+family_types_elements = defaultdict(list)
 try:              
     wall_id = []
     target_tag = str(forms.ask_for_string("Enter tag name")).lower()
@@ -35,62 +37,56 @@ try:
             
             message='Search for tag {0} in category:'.format(target_tag))
 
+    target_category = options_category[selected_switch_category]
 
-    options_parameter = {'Mark': DB.BuiltInParameter.ALL_MODEL_MARK,
-        'Comments':DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS ,
-        'Wall Number': 'Wall Number'
-    }
+    # import wall by excluding family types as stored as a collector
+    elements=DB.FilteredElementCollector(doc,curview.Id)\
+                        .OfCategory(target_category)\
+                        .WhereElementIsNotElementType() \
+                        .ToElements()
+    
+    if not elements:
+        forms.alert("No elements of {0} found in active view".format(selected_switch_category),exitscript = True)
+    for ele in elements:
+        family_types_elements[ele.Name].append(ele)
+
+    for k,v in family_types_elements.items():
+        param_dic[k].append(v[0].GetOrderedParameters())
+
+    col_para = []
+    for k,v in param_dic.items():
+        parameters = [j.Definition.Name for i in v for j in i] # parameters are list of lists due to c# lists
+        for para in parameters:
+            if para not in col_para:
+                col_para.append(para)    
+
+    options_parameter = {k:v for k,v in zip(col_para,col_para)}   
 
     selected_switch_parameter = \
-        forms.CommandSwitchWindow.show(sorted(options_parameter.keys()),
-                                    message='Search for instance parameter')
-                                                                    
-
-    target_category = options_category[selected_switch_category]
+    forms.CommandSwitchWindow.show(sorted(options_parameter.keys()),
+                                message='Search for instance parameter')
     target_parameter = options_parameter[selected_switch_parameter]
 
-
-    if target_parameter == 'Wall Number': # if parameter is shared
-    # import wall by excluding family types as stored as a collector
-        wall_collector=DB.FilteredElementCollector(doc,curview.Id)\
-                            .OfCategory(target_category)\
-                            .WhereElementIsNotElementType() \
-                            .ToElements()
-        for wall in wall_collector:
-            para_list = wall.GetParameters(target_parameter)
-            if len(para_list) > 1:
-                forms.alert("More than one parameter with name {0} found".format(target_parameter),
-                exitscript=True)
-            
+    for wall in elements:
+        para_list = wall.GetParameters(target_parameter)
+        if len(para_list) > 1:
+            forms.alert("More than one parameter with name {0} found".format(target_parameter),
+            exitscript=True)
+        try:
             para_value = para_list[0].AsString() #converts object into string)
-            if para_value: # some time parameter value may not be assigned in walls
-                para_value = para_value.lower()
-            if para_value == target_tag:
-                wall_id.append(wall.Id) # returns element id
-                wall_id_list = List[DB.ElementId](wall_id)
-        
-        if wall_id:
-            revit.get_selection().set_to(wall_id) 
-        else :
-            forms.alert("Wall \"{0}\" not found!!!".format(target_tag))
-            
-    else: 
-        param_id = DB.ElementId(target_parameter)
-        param_prov = DB.ParameterValueProvider(param_id)
-        param_equality = DB.FilterStringEquals() # equality class
-            
-        value_rule = DB.FilterStringRule(param_prov,param_equality,target_tag ,True)
-        param_filter = DB.ElementParameterFilter(value_rule)
+        except:
+            forms.alert("This addin is only for searching text based tags",exitscript=True)
 
-        elements = DB.FilteredElementCollector(doc)\
-                .OfCategory(target_category)\
-                .WhereElementIsNotElementType()\
-                .WherePasses(param_filter)\
-                .ToElementIds() # select category based on the rule
-        if elements:
-            uidoc.Selection.SetElementIds(elements) 
-        else:
-            forms.alert("Tag \"{0}\" not found!!!".format(target_tag))
+        if para_value: # some time parameter value may not be assigned in walls
+            para_value = para_value.lower()
+        if para_value == target_tag:
+            wall_id.append(wall.Id) # returns element id
+            wall_id_list = List[DB.ElementId](wall_id)
 
+    if wall_id:
+        revit.get_selection().set_to(wall_id) 
+    else :
+        forms.alert("No {0} with tag \"{1}\" found!!!".format(target_category,target_tag))
+            
 except Exception as e: # exception to deal with user exiting form
     print(e)
