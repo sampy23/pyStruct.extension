@@ -1,5 +1,5 @@
 __doc__="This addin selects walls in the current view whose length equals selected wall's length"
-__title__="Wall\nLength" #Title of the extension
+__title__="Wall\n Equal Length" #Title of the extension
 __author__ = "Shahabaz Sha"
 
 from pyrevit.framework import List
@@ -18,13 +18,13 @@ if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
 
-length = float(forms.ask_for_string("Enter length in meters"))
+length_feet = float(forms.ask_for_string("Enter length in meters"))/0.3048 # sometimes revit interprets 1 > 1.0
 target_parameter =  DB.BuiltInParameter.CURVE_ELEM_LENGTH # FAMILY_TOP_LEVEL_PARAM, FAMILY_BASE_LEVEL_PARAM
 param_id = DB.ElementId(target_parameter)
 param_prov = DB.ParameterValueProvider(param_id)
 param_equality = DB.FilterNumericEquals() # equality class
     
-value_rule = DB.FilterDoubleRule(param_prov,param_equality,length/0.3048 ,1e-3) # 0.5 will give us a tolerance of 304.8 mm
+value_rule = DB.FilterDoubleRule(param_prov,param_equality,length_feet ,1e-3/0.3048) # tolerance of 1 mm
 param_filter = DB.ElementParameterFilter(value_rule)
 
 same_cat_elements = \
@@ -40,11 +40,12 @@ for sim_element in same_cat_elements:
     r_type = sim_element.GetTypeId()
     # if r_type == type_id: # for same family type
     filered_elements.append(sim_element.Id)
-    num_walls = len(filered_elements)
 
+num_walls = len(filered_elements)
+length_m = length_feet * 0.3048
 
-if len(filered_elements) > 1:
+if num_walls >= 1:
     revit.get_selection().set_to(filered_elements) 
-    forms.alert("{} Walls of length {} m selected!!!".format(num_walls,length))
+    forms.alert("{} Walls of length {} m selected!!!".format(num_walls,length_m))
 else:
-    forms.alert("No other walls of length {} m found!!!".format(length))
+    forms.alert("No other walls of length {} m found!!!".format(length_m    ))
