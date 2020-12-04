@@ -1,5 +1,5 @@
 __doc__="This addin calculates total volume of Structural Columns/Framing/Floors/Walls which are visible in Active view"
-__title__="Total\nVolume" #Title of the extension
+__title__="Total\nVolume\nStructure" #Title of the extension
 __author__ = "Shahabaz Sha"
 
 from pyrevit import revit, DB, UI
