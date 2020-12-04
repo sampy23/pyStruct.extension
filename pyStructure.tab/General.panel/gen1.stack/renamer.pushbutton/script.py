@@ -214,7 +214,7 @@ class PrintSheetsWindow(forms.WPFWindow):
             sep_4 = ""
 
             if prefix:
-                new_name = prefix + " "
+                new_name = prefix
             else:
                 new_name = ""
             if self.get_param_value(param_0) not in ["","None"]:
@@ -232,7 +232,7 @@ class PrintSheetsWindow(forms.WPFWindow):
             if self.get_param_value(param_4) not in ["","None"]:
                 new_name = new_name + sep_4 + self.get_param_value(param_4)
             if suffix:
-                new_name = new_name + " " + suffix
+                new_name = new_name + suffix
 
             new_name = new_name.replace("None","") # to replace None with ""
 
