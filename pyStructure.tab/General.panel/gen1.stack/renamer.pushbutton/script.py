@@ -221,7 +221,7 @@ class PrintSheetsWindow(forms.WPFWindow):
             if prefix:
                 new_name = prefix
             else:
-                new_name = ""
+                new_name = "{Empty Name}"
             if self.get_param_value(param_0) not in ["","None"]:
                 new_name = new_name + self.get_param_value(param_0)
                 sep_1 = self.sep_1 # seperator to be added only if param_0 exists
@@ -241,12 +241,14 @@ class PrintSheetsWindow(forms.WPFWindow):
 
             new_name = new_name.replace("None","") # to replace None with ""
 
-            if new_name not in self.name_list:
+            if new_name not in self.name_list: # helps prevent duplicates
                 self.name_list.append(new_name)
             elif len(new_name):# enter if new_name is not an empty string
                 duplicate_counter += 1
                 new_name = new_name  + " ({0})".format(duplicate_counter)
                 self.name_list.append(new_name)
+            else: # this is accepting empty strings
+                self.name_list.append("{Empty Name}")
 
             if (len(self.name_list) > 75) and not entered:
                 if not forms.alert('More than 75 element type found.'
@@ -259,11 +261,6 @@ class PrintSheetsWindow(forms.WPFWindow):
                     sys.exit()
                 else:
                     entered = True
-        
-        if "" in self.name_list:
-            for i,j in enumerate(self.name_list):
-                if j == "":
-                    self.name_list[i] =  "{Empty Name}"
         
         element_types_names = [DB.Element.Name.__get__(ele) for ele in element_types]
         zipped = zip(element_types_names,self.name_list)
