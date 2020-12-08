@@ -159,6 +159,7 @@
             <ListView x:Name="rename_lb" Margin="10,0,10,10.4" AllowDrop="True" Height="313">
                 <ListView.View>
                     <GridView>
+                        <GridViewColumn Header="Old Name" DisplayMemberBinding="{Binding Old_name}" Width="Auto"/>
                         <GridViewColumn Header="New Name                              " DisplayMemberBinding="{Binding Name}" Width="Auto"/>
                         <GridViewColumn Header="Valid Revit Name?                     " DisplayMemberBinding="{Binding Validity}" Width="Auto"/>
                     </GridView>

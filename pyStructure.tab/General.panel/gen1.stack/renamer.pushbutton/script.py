@@ -11,7 +11,7 @@ import operator
 
 xaml_file_name = "ui.xaml"
 
-Name_class = namedtuple('Dummy', ['Name',"Validity"])
+Name_class = namedtuple('Dummy', ['Old_name','Name',"Validity",])
 Param_class = namedtuple('Parameters', ['Name',"Index"])
 
 doc =__revit__.ActiveUIDocument.Document
@@ -59,6 +59,10 @@ class PrintSheetsWindow(forms.WPFWindow):
     @rename_list.setter
     def rename_list(self, value):
         self.rename_lb.ItemsSource = value
+
+    # @old_name_list.setter
+    # def old_name_list(self, value):
+    #     self.rename_lb.ItemsSource = value
     
     @property
     def prefix_needed(self):
@@ -100,7 +104,7 @@ class PrintSheetsWindow(forms.WPFWindow):
         return sorted(self.dict_cat_id.keys(),key = operator.attrgetter("Name")) # sorting list of classes based on attr
 
     def _setup_family(self):
-        self.family_cb.ItemsSource = sorted([Name_class(i,None) for i in self.family_ele_dict.keys()],\
+        self.family_cb.ItemsSource = sorted([Name_class(None,i,None) for i in self.family_ele_dict.keys()],\
                                             key = operator.attrgetter("Name")) # sorting list of classes based on attr
         self.family_cb.SelectedIndex = 0
 
@@ -179,7 +183,8 @@ class PrintSheetsWindow(forms.WPFWindow):
         else:
             suffix = self.suffix
 
-        for ele in self.family_ele_dict[self.selected_family.Name]: # iterate through element in selected family type
+        element_types = self.family_ele_dict[self.selected_family.Name]
+        for ele in element_types: # iterate through element in selected family type
             if ele.GetParameters(self.parameters[self.selected_param_0.Index].Name):
                 param_0 = ele.GetParameters(self.parameters[self.selected_param_0.Index].Name)[0] 
                                                         # using index of parameter list to deal with duplicates 
@@ -260,7 +265,10 @@ class PrintSheetsWindow(forms.WPFWindow):
                 if j == "":
                     self.name_list[i] =  "{Empty Name}"
         
-        self.rename_list = [Name_class(Name=i,Validity=DB.NamingUtils.IsValidName(i)) for i in sorted(self.name_list)]
+        element_types_names = [DB.Element.Name.__get__(ele) for ele in element_types]
+        zipped = zip(element_types_names,self.name_list)
+        self.rename_list = [Name_class(Old_name = i,Name=j,Validity=DB.NamingUtils.IsValidName(j)) \
+                                                    for i,j in sorted(zipped,key=operator.itemgetter(0))]
         self.rename_button.IsEnabled = True 
 
     def rename(self,send,args):
