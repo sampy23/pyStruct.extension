@@ -221,7 +221,7 @@ class PrintSheetsWindow(forms.WPFWindow):
             if prefix:
                 new_name = prefix
             else:
-                new_name = "{Empty Name}"
+                new_name = ""
             if self.get_param_value(param_0) not in ["","None"]:
                 new_name = new_name + self.get_param_value(param_0)
                 sep_1 = self.sep_1 # seperator to be added only if param_0 exists
@@ -241,7 +241,7 @@ class PrintSheetsWindow(forms.WPFWindow):
 
             new_name = new_name.replace("None","") # to replace None with ""
 
-            if new_name not in self.name_list: # helps prevent duplicates
+            if new_name not in self.name_list and new_name: # helps prevent duplicates and skip empty strings
                 self.name_list.append(new_name)
             elif len(new_name):# enter if new_name is not an empty string
                 duplicate_counter += 1
