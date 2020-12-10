@@ -42,11 +42,41 @@ __context__ = 'Selection'
 doc =__revit__.ActiveUIDocument.Document
 uidoc =__revit__.ActiveUIDocument
 
+def get_options(cat_name):
+    if cat_name == 'Structural Columns':
+        options_parameter = {
+            "Base level":DB.BuiltInParameter.FAMILY_BASE_LEVEL_PARAM ,  #only columns
+            "Top level":DB.BuiltInParameter.FAMILY_TOP_LEVEL_PARAM , #only columns
+            "Base offset":DB.BuiltInParameter.FAMILY_BASE_LEVEL_OFFSET_PARAM , #only columns
+            "Top offset":DB.BuiltInParameter.FAMILY_TOP_LEVEL_OFFSET_PARAM , #only columns
+            }
+    elif (cat_name == 'Walls') or (cat_name == 'Shaft Openings'): # share same inst parameters
+        options_parameter = {
+            "Base offset":DB.BuiltInParameter.WALL_BASE_OFFSET, # shafts,walls,columns
+            "Top offset":DB.BuiltInParameter.WALL_TOP_OFFSET, # shafts,walls,columns
+            "Base constraint":DB.BuiltInParameter.WALL_BASE_CONSTRAINT, # shafts,walls
+            "Top constraint":DB.BuiltInParameter.WALL_HEIGHT_TYPE, # shafts,walls
+            "Unconnected height":DB.BuiltInParameter.WALL_USER_HEIGHT_PARAM, # shafts,walls
+            }
+    elif cat_name == 'Structural Framing':
+        options_parameter = {
+            'Z offset value': DB.BuiltInParameter.Z_OFFSET_VALUE, #only beams
+            'Z justification':DB.BuiltInParameter.Z_JUSTIFICATION,  #only beams
+            'Elevation at top':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_TOP, #beams,floors,foundation
+            'Elevation at bottom':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_BOTTOM, #beams,floors,foundation
+            'Reference level':DB.BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM, # beams only
+            }
+    elif (cat_name == 'Floors') or (cat_name == 'Structural Foundations'): # share same inst parameters
+        options_parameter = {
+            'Elevation at top':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_TOP, #beams,floors,foundation
+            'Elevation at bottom':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_BOTTOM, #beams,floors,foundation
+            "Height offset from level":DB.BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM, # floors,foundation
+            "Level": DB.BuiltInParameter.LEVEL_PARAM # floors
+            }
+    return options_parameter
+
 def decode_valuestring(target_parameter_value,target_category,target_parameter):
     "Value strings are Revit representation and as such cannot be filtered using fast filters"
-    doc =__revit__.ActiveUIDocument.Document
-    curview = doc.ActiveView
-
     elementids = DB.FilteredElementCollector(doc, curview.Id)\
         .OfCategory(target_category)\
         .WhereElementIsNotElementType()\
@@ -58,8 +88,7 @@ def decode_valuestring(target_parameter_value,target_category,target_parameter):
         if ele_parameter_value == target_parameter_value:
             collect_eleid.append(eleid)
 
-    revit.get_selection().set_to(collect_eleid) 
-    sys.exit()
+    return collect_eleid
 
 # make sure active view is not a sheet
 curview = doc.ActiveView
@@ -80,30 +109,12 @@ options_category = {'Structural Columns': DB.BuiltInCategory.OST_StructuralColum
     'Shaft Openings':DB.BuiltInCategory.OST_ShaftOpening
 }
 
-options_parameter = {'Mark': DB.BuiltInParameter.ALL_MODEL_MARK, # all
-    'Comments':DB.BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS , # all
-    'Z offset value': DB.BuiltInParameter.Z_OFFSET_VALUE, #only beams
-    "Base level":DB.BuiltInParameter.FAMILY_BASE_LEVEL_PARAM ,  #only columns
-    "Top level":DB.BuiltInParameter.FAMILY_TOP_LEVEL_PARAM , #only columns
-    # "Column Base offset":DB.BuiltInParameter.FAMILY_BASE_LEVEL_OFFSET_PARAM , #only columns
-    # "Column Top offset":DB.BuiltInParameter.FAMILY_TOP_LEVEL_OFFSET_PARAM , #only columns
-	'Z justification':DB.BuiltInParameter.Z_JUSTIFICATION,  #only beams
-	'Elevation at top':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_TOP, #beams,floors,foundation
-	'Elevation at bottom':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_BOTTOM, #beams,floors,foundation
-    "Height offset from level":DB.BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM, # floors foundation
-    "Base offset":DB.BuiltInParameter.WALL_BASE_OFFSET, # shafts,walls
-    "Top offset":DB.BuiltInParameter.WALL_TOP_OFFSET, # shafts,walls
-    "Base constraint":DB.BuiltInParameter.WALL_BASE_CONSTRAINT, # shafts,walls
-    "Top constraint":DB.BuiltInParameter.WALL_HEIGHT_TYPE, # shafts,walls
-    "Unconnected height":DB.BuiltInParameter.WALL_USER_HEIGHT_PARAM, # shafts,walls
-    'Reference level':DB.BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM, # beams only
-    "Level": DB.BuiltInParameter.LEVEL_PARAM
-}
+options_parameter = get_options(category_name) # function call
 
 
 selected_switch_parameter = \
     forms.CommandSwitchWindow.show(sorted(options_parameter.keys()),
-                                message='Search for parameter in {0}'.format(options_category.keys()))
+                                message='Search for parameter in {0}'.format(category_name))
 
 if selected_switch_parameter:
     target_parameter = options_parameter[selected_switch_parameter]
@@ -114,50 +125,40 @@ else:# to deal with user pressing esc button
 valuestring = False
 if selected_switch_parameter in ["Z offset value",'Elevation at top','Elevation at bottom',"Height offset from level",
                                 "Top offset","Base offset","Unconnected height"]:# double values
-    if category_name == 'Structural Columns' :# columns belong in Asvaluestring():#To deal with offset selection
-        if selected_switch_parameter == "Base offset":
-            target_parameter = DB.BuiltInParameter.FAMILY_BASE_LEVEL_OFFSET_PARAM
-        elif selected_switch_parameter == "Top offset":
-            target_parameter = DB.BuiltInParameter.FAMILY_TOP_LEVEL_OFFSET_PARAM
-        try:
-            target_parameter_value = ele.Parameter[target_parameter].AsValueString()
-        except:
-            forms.alert("Parameter {0} not found in {1}".format(selected_switch_parameter,category_name),exitscript=True)
-        decode_valuestring(target_parameter_value,target_category,target_parameter)
-    else:
-        try:
-            target_parameter_value = ele.Parameter[target_parameter].AsDouble()
-        except:
-            forms.alert("Parameter {0} not found in {1}".format(selected_switch_parameter,category_name),exitscript=True)
-        param_id = DB.ElementId(target_parameter)
-        param_prov = DB.ParameterValueProvider(param_id)
-        param_equality = DB.FilterNumericEquals() # equality class for double
-        value_rule = DB.FilterDoubleRule(param_prov,param_equality,target_parameter_value,1e-3)
-        param_filter = DB.ElementParameterFilter(value_rule)
-elif selected_switch_parameter in ["Mark","Comments"] :# string values
     try:
-        target_parameter_value = ele.Parameter[target_parameter].AsString()
+        target_parameter_value = ele.Parameter[target_parameter].AsDouble()
     except:
         forms.alert("Parameter {0} not found in {1}".format(selected_switch_parameter,category_name),exitscript=True)
     param_id = DB.ElementId(target_parameter)
     param_prov = DB.ParameterValueProvider(param_id)
-    param_equality = DB.FilterStringEquals() # equality class for string
-    value_rule = DB.FilterStringRule(param_prov,param_equality,target_parameter_value ,True)
+    param_equality = DB.FilterNumericEquals() # equality class for double
+    value_rule = DB.FilterDoubleRule(param_prov,param_equality,target_parameter_value,1e-5)
     param_filter = DB.ElementParameterFilter(value_rule)
+    elementids = DB.FilteredElementCollector(doc, curview.Id)\
+            .OfCategory(target_category)\
+            .WhereElementIsNotElementType()\
+            .WherePasses(param_filter)\
+            .ToElementIds() # select category based on the rule
+
+    if len(elementids) > 1: # there atleast one element selected
+        uidoc.Selection.SetElementIds(elementids)
+    else:
+        forms.alert("No other {0} have {1} value \"{2}\"".\
+                                        format(category_name,selected_switch_parameter.lower(),target_parameter_value)\
+                                        ,exitscript=True)
+
 else :#  value Strings
-    """This param equality for this type is not available  in any language, so we go for for loop"""
+    """This param equality for this type is not available so we go for for loop"""
     valuestring = True
     try:
         target_parameter_value = ele.Parameter[target_parameter].AsValueString()# As value strings got converted to strings
     except:
-        forms.alert("Parameter {0} not found in {1}".format(selected_switch_parameter,category_name),exitscript=True)
-    decode_valuestring(target_parameter_value,target_category,target_parameter)
-    
+        forms.alert("Parameter \"{0}\" not found in {1}".format(selected_switch_parameter,category_name),exitscript=True)
+    collect_eleid = decode_valuestring(target_parameter_value,target_category,target_parameter) #function call
 
-elementids = DB.FilteredElementCollector(doc, curview.Id)\
-        .OfCategory(target_category)\
-        .WhereElementIsNotElementType()\
-        .WherePasses(param_filter)\
-        .ToElementIds() # select category based on the rule
-
-uidoc.Selection.SetElementIds(elementids) 
+    if len(collect_eleid) > 1: # there atleast one element selected
+        revit.get_selection().set_to(collect_eleid) 
+    else:
+        forms.alert("No other {0} have {1} value \"{2}\"".\
+                                        format(category_name,selected_switch_parameter.lower(),target_parameter_value)\
+                                        ,exitscript=True)
