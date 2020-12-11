@@ -1,4 +1,4 @@
-__doc__="This addin creates reads and write data from excel inorder to create sheets"
+__doc__="This addin reads data from excel and create an excel file"
 __title__="Sheet To\nExcel" #Title of the extension
 __author__ = "Shahabaz Sha"
 
