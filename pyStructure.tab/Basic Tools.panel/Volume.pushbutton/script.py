@@ -9,26 +9,28 @@ doc =__revit__.ActiveUIDocument.Document
 
 
 
-def formatter(string):
+def formatter_cube(string):
     return u'{0}\xb3'.format(string)
 
-def unit_from_type(unitype):
-    if unittype == [DB.DisplayUnitType.DUT_CUBIC_FEET]:
-        return formatter("ft")
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_METERS]:
-        return formatter("m")
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_INCHES]:
-        return formatter("in")
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_CENTIMETERS]:
-        return formatter("cm")
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_MILLIMETERS]:
-        return formatter("mm")
-    elif unittype == [DB.DisplayUnitType.DUT_LITERS]:
+def unit_from_type(display_unit_type):
+    if display_unit_type == DB.DisplayUnitType.DUT_CUBIC_FEET:
+        return formatter_cube("ft")
+    elif display_unit_type == DB.DisplayUnitType.DUT_CUBIC_METERS:
+        return formatter_cube("m")
+    elif display_unit_type == DB.DisplayUnitType.DUT_CUBIC_INCHES:
+        return formatter_cube("in")
+    elif display_unit_type == DB.DisplayUnitType.DUT_CUBIC_CENTIMETERS:
+        return formatter_cube("cm")
+    elif display_unit_type == DB.DisplayUnitType.DUT_CUBIC_MILLIMETERS:
+        return formatter_cube("mm")
+    elif display_unit_type == DB.DisplayUnitType.DUT_LITERS:
         return "litres"
-    elif unittype == [DB.DisplayUnitType.DUT_GALLONS_US]:
+    elif display_unit_type == DB.DisplayUnitType.DUT_GALLONS_US:
         return "US gallons"
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_YARDS]:
-        return formatter("yd")
+    elif display_unit_type == DB.DisplayUnitType.DUT_CUBIC_YARDS:
+        return formatter_cube("yd")
+    elif display_unit_type == DB.DisplayUnitType.DUT_UNDEFINED:
+        return "undefined"
 
 # make sure active view is not a sheet
 curview = doc.ActiveView
@@ -60,38 +62,32 @@ try:
                 .WhereElementIsNotElementType()\
                 .ToElements()
         
-        total_volume = 0.0
+        total_quant = 0.0
+        warning_count = 0
         for ele in target_elements:
-            vol_para = ele.Parameter[DB.BuiltInParameter.HOST_VOLUME_COMPUTED]
-            if vol_para:
-                splitted_value = vol_para.AsValueString().split(" ")
-                volume = float(splitted_value[0])
-                if len(splitted_value) > 1:
-                    unit.append(splitted_value[0]) # for area and volume revit return unit
-                else:
-                    unitype.append(vol_para.DisplayUnitType) # for volume unit is not returned so we use unit type
+            para = ele.Parameter[DB.BuiltInParameter.HOST_VOLUME_COMPUTED]
+            if para:
+                quant = para.AsDouble() # AsValueString() not recommended
+                total_quant+=quant
+            else:
+                if warning_count < 10: # we don't wish to bomb the user
+                    forms.alert("Warning!!! {0} in the selection has no volume parameter".format(ele.Category.Name),
+                            exitscript=False)
+                    warning_count+=1
 
-                total_volume+=volume
+        dut = para.DisplayUnitType # will be same for all elements
+        total_quant = round(DB.UnitUtils.ConvertFromInternalUnits(total_quant,para.DisplayUnitType),4)
+        try:
+            formatted_total_quant = str(total_quant) + " " + unit_from_type(dut)
+        except: # for none case
+            formatted_total_quant = str(total_quant)
 
-    if unit:
-        unit = list(set(unit))
-        if len(unit) > 1:
-            print("Some issue")
-        else:
-            reqd_unit = unit[0]
-    else:
-        unittype = list(set(unitype))
-        if len(unittype) > 1:
-            print("Some issue")
-        else:
-            reqd_unit = unit_from_type(unittype[0])
-
-    if total_volume:
-        forms.alert("Total volume of {0} in current view is {1} {2}".format(selected_switch,total_volume,reqd_unit),
-                        exitscript=True)
-    else:
-        forms.alert("Total volume negligible in {0} units\n Change project units for result".format(reqd_unit)
-                                                                                                ,exitscript=True)
+        if formatted_total_quant:
+            forms.alert("Total volume of {0} in current view is {1}".format(selected_switch,formatted_total_quant),
+                            exitscript=True)
+        else: # is this needed now?
+            forms.alert("Total volume negligible in {0} current units\n Change project units for result"
+                                                                                                    ,exitscript=True)
 except Exception as e: # exception to deal with user exiting the application
     print(str(e))
     pass 
