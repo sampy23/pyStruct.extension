@@ -4,6 +4,12 @@ __author__ = "Shahabaz Sha"
 
 from pyrevit import revit, DB, UI
 from pyrevit import forms
+import sys
+import os
+
+dir_name = os.path.dirname(sys.path[0])
+sys.path.append(dir_name)
+import units
 
 # Getting selection from user
 __context__ = 'Selection'
@@ -16,37 +22,14 @@ if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
 
-warning_count = 0 # warning fuse
-total_area = 0.0
-unit = []
-
 selection = revit.get_selection()
 builtin_enum =DB.BuiltInParameter.HOST_AREA_COMPUTED
-if selection:    
-    for ele in selection:
-        area_para = ele.Parameter[builtin_enum]
-        if area_para:
-            splitted_value = area_para.AsValueString().split(" ")
-            area = float(splitted_value[0])
-            unit.append(splitted_value[1])
-            total_area+=area
+   
+total_quant,warning_count = units.total(doc,"area",selection,builtin_enum)
 
-        else:
-            if warning_count < 10:
-                forms.alert("Warning!!! {0} in the selection has no area parameter".format(ele.Category.Name),
-                        exitscript=False)
-                warning_count+=1
-
-unit = list(set(unit))
-if len(unit) > 1:
-    print("Some issue")
-else:
-    reqd_unit = unit[0]
-
-if total_area:
-    # total_length = total_length*0.3048*0.3048
-    forms.alert("Total area is {0} {1}".format(total_area,reqd_unit),
+if total_quant:
+    forms.alert("Total area is {0}".format(total_quant),
                     exitscript=True)
 else:
-    forms.alert("Total area negligible in {0} units\n Change project units for result".format(reqd_unit)
+    forms.alert("Total area negligible in current units\n Change project units for result"
                                                     ,exitscript=True)
