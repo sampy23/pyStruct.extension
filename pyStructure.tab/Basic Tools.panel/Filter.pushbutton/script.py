@@ -1,8 +1,8 @@
 __doc__="This addin filters"
 __title__="Filter" #Title of the extension
 __author__ = "Shahabaz Sha"
-"""This is an advanced add-in that filter Structural Columns,Walls,Beams,Floors,Foundation,Shaft opening based on
-the selected parameter
+"""This is an advanced filter that works Structural Columns,Walls,Beams,Floors,Foundation,Shaft opening to filter
+it based on the chosen parameter.
 """
 
 from pyrevit import revit
@@ -71,6 +71,8 @@ if isinstance(curview, DB.ViewSheet):
                 exitscript=True)
 
 selection = revit.get_selection()
+if len(selection) > 1:
+    forms.alert("More than one elements selected.\nSelect one element an d continue",exitscript=True)
 ele = selection[0]  # only one element is used. Warn user if more than one selected?
 category_name = ele.Category.Name
 
@@ -82,6 +84,10 @@ options_category = {'Structural Columns': DB.BuiltInCategory.OST_StructuralColum
     'Structural Foundations':DB.BuiltInCategory.OST_StructuralFoundation,
     'Shaft Openings':DB.BuiltInCategory.OST_ShaftOpening
 }
+
+if category_name not in options_category.keys():
+    forms.alert("Category \"{0}\" not covered in this filter".format(category_name),exitscript=True)
+
 
 options_parameter = get_options(category_name) # function call
 
