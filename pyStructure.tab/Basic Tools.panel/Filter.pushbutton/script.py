@@ -1,34 +1,8 @@
 __doc__="This addin filters"
 __title__="Filter" #Title of the extension
 __author__ = "Shahabaz Sha"
-"""
-**General Information**
-AsDouble
-Z offset value : Z_OFFSET_VALUE : beams only
-Ele at top : STRUCTURAL_ELEVATION_AT_TOP : beams,floors,foundation
-Ele at bottom : STRUCTURAL_ELEVATION_AT_BOTTOM  : beams,floors,foundation
-Height offset from level : FLOOR_HEIGHTABOVELEVEL_PARAM -Floors,Foundation 
-unconnected height : WALL_USER_HEIGHT_PARAM-walls Shafts 
-top offset : WALL_TOP_OFFSET -walls,shafts 
-base offset : WALL_BASE_OFFSET -walls,shafts
-
-AsString
-type mark : ALL_MODEL_TYPE_MARK : Beams,Columns,Slabs,Foundation,Walls (Cannot be read from selection)
-mark : ALL_MODEL_MARK: Beams,Columns,Slabs,Foundation,Walls
-comments : ALL_MODEL_INSTANCE_COMMENTS : Beams,Columns,Slabs,Foundation,Walls
-
-Asvaluestring
-Family : ELEM_FAMILY_PARAM : common
-Family and Type : ELEM_FAMILY_AND_TYPE_PARAM : common
-Z justification : Z_JUSTIFICATION  : beams only
-reference level : INSTANCE_REFERENCE_LEVEL_PARAM -beams only 
-base level : FAMILY_BASE_LEVEL_PARAM : columns only
-top level : FAMILY_TOP_LEVEL_PARAM : columns only
-base offset : FAMILY_BASE_LEVEL_OFFSET_PARAM : columns only
-top offset : FAMILY_TOP_LEVEL_OFFSET_PARAM : columns only
-base constraint : WALL_BASE_CONSTRAINT : walls,Shafts 
-top constraint : WALL_HEIGHT_TYPE : walls,Shafts 
-Level : LEVEL_PARAM : Floors,Foundation
+"""This is an advanced add-in that filter Structural Columns,Walls,Beams,Floors,Foundation,Shaft opening based on
+the selected parameter
 """
 
 from pyrevit import revit
@@ -60,8 +34,8 @@ def get_options(cat_name):
             }
     elif cat_name == 'Structural Framing':
         options_parameter = {
-            'Z offset value': DB.BuiltInParameter.Z_OFFSET_VALUE, #only beams
-            'Z justification':DB.BuiltInParameter.Z_JUSTIFICATION,  #only beams
+            'Z offset value': DB.BuiltInParameter.Z_OFFSET_VALUE, # beams
+            'Z justification':DB.BuiltInParameter.Z_JUSTIFICATION,  # beams
             'Elevation at top':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_TOP, #beams,floors,foundation
             'Elevation at bottom':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_BOTTOM, #beams,floors,foundation
             'Reference level':DB.BuiltInParameter.INSTANCE_REFERENCE_LEVEL_PARAM, # beams only
@@ -71,7 +45,7 @@ def get_options(cat_name):
             'Elevation at top':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_TOP, #beams,floors,foundation
             'Elevation at bottom':DB.BuiltInParameter.STRUCTURAL_ELEVATION_AT_BOTTOM, #beams,floors,foundation
             "Height offset from level":DB.BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM, # floors,foundation
-            "Level": DB.BuiltInParameter.LEVEL_PARAM # floors
+            "Level": DB.BuiltInParameter.SCHEDULE_LEVEL_PARAM # floors,foundation
             }
     return options_parameter
 
@@ -97,7 +71,7 @@ if isinstance(curview, DB.ViewSheet):
                 exitscript=True)
 
 selection = revit.get_selection()
-ele = selection[0]  
+ele = selection[0]  # only one element is used. Warn user if more than one selected?
 category_name = ele.Category.Name
 
 # Creating a dictionary
