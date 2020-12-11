@@ -13,22 +13,22 @@ doc =__revit__.ActiveUIDocument.Document
 def formatter(string):
     return u'{0}\xb3'.format(string)
 
-def unit_from_type(unitype):
-    if unittype == [DB.DisplayUnitType.DUT_CUBIC_FEET]:
+def unit_from_type(unittype):
+    if unittype == DB.DisplayUnitType.DUT_CUBIC_FEET:
         return formatter("ft")
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_METERS]:
+    elif unittype == DB.DisplayUnitType.DUT_CUBIC_METERS:
         return formatter("m")
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_INCHES]:
+    elif unittype == DB.DisplayUnitType.DUT_CUBIC_INCHES:
         return formatter("in")
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_CENTIMETERS]:
+    elif unittype == DB.DisplayUnitType.DUT_CUBIC_CENTIMETERS:
         return formatter("cm")
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_MILLIMETERS]:
+    elif unittype == DB.DisplayUnitType.DUT_CUBIC_MILLIMETERS:
         return formatter("mm")
-    elif unittype == [DB.DisplayUnitType.DUT_LITERS]:
+    elif unittype == DB.DisplayUnitType.DUT_LITERS:
         return "litres"
-    elif unittype == [DB.DisplayUnitType.DUT_GALLONS_US]:
+    elif unittype == DB.DisplayUnitType.DUT_GALLONS_US:
         return "US gallons"
-    elif unittype == [DB.DisplayUnitType.DUT_CUBIC_YARDS]:
+    elif unittype == DB.DisplayUnitType.DUT_CUBIC_YARDS:
         return formatter("yd")
 
 
@@ -41,7 +41,7 @@ if isinstance(curview, DB.ViewSheet):
 warning_count = 0 # warning fuse
 total_volume = 0.0
 unit = []
-unitype = []
+unittype = []
 
 selection = revit.get_selection()
 builtin_enum =DB.BuiltInParameter.HOST_VOLUME_COMPUTED
@@ -54,7 +54,7 @@ if selection:
             if len(splitted_value) > 1:
                 unit.append(splitted_value[0]) # for area revit return unit
             else:
-                unitype.append(vol_para.DisplayUnitType) # for volume and length  unit is not returned so we use unit type
+                unittype.append(vol_para.DisplayUnitType) # for volume and length  unit is not returned so we use unit type
 
             total_volume+=volume
         else:
@@ -70,7 +70,7 @@ if unit:
     else:
         reqd_unit = unit[0]
 else:
-    unittype = list(set(unitype))
+    unittype = list(set(unittype))
     if len(unittype) > 1:
         print("Some issue")
     else:

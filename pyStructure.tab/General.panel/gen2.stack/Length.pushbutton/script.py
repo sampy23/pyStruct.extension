@@ -10,24 +10,24 @@ __context__ = 'Selection'
 
 doc =__revit__.ActiveUIDocument.Document
 
-def unit_from_type(unitype):
-    if unittype == [DB.DisplayUnitType.DUT_MILLIMETERS]:
+def unit_from_type(unittype):
+    if unittype == DB.DisplayUnitType.DUT_MILLIMETERS:
         return "mm" 
-    elif unittype == [DB.DisplayUnitType.DUT_METERS]:
+    elif unittype == DB.DisplayUnitType.DUT_METERS:
         return "m"
-    elif unittype == [DB.DisplayUnitType.DUT_CENTIMETERS]:
+    elif unittype == DB.DisplayUnitType.DUT_CENTIMETERS:
         return "cm"
-    elif unittype == [DB.DisplayUnitType.DUT_DECIMAL_FEET]:
+    elif unittype == DB.DisplayUnitType.DUT_DECIMAL_FEET:
         return "decimal-feet"
-    elif unittype == [DB.DisplayUnitType.DUT_FEET_FRACTIONAL_INCHES]:
+    elif unittype == DB.DisplayUnitType.DUT_FEET_FRACTIONAL_INCHES:
         return "feet-fractional inches"
-    elif unittype == [DB.DisplayUnitType.DUT_FRACTIONAL_INCHES]:
+    elif unittype == DB.DisplayUnitType.DUT_FRACTIONAL_INCHES:
         return "fractional inches"
-    elif unittype == [DB.DisplayUnitType.DUT_DECIMAL_INCHES]:
+    elif unittype == DB.DisplayUnitType.DUT_DECIMAL_INCHES:
         return "decimal-inches"
-    elif unittype == [DB.DisplayUnitType.DUT_CUSTOM]:
+    elif unittype == DB.DisplayUnitType.DUT_CUSTOM:
         return "custom"
-    elif unittype == [DB.DisplayUnitType.DUT_UNDEFINED]:
+    elif unittype == DB.DisplayUnitType.DUT_UNDEFINED:
         return "undefined"
 
 # make sure active view is not a sheet
@@ -39,7 +39,7 @@ if isinstance(curview, DB.ViewSheet):
 warning_count = 0 # warning fuse
 total_length = 0.0
 unit = []
-unitype = []
+unittype = []
 
 selection = revit.get_selection()
 builtin_enum =DB.BuiltInParameter.CURVE_ELEM_LENGTH
@@ -50,9 +50,9 @@ if selection:
             splitted_value = len_para.AsValueString().split(" ")
             length = float(splitted_value[0])
             if len(splitted_value) > 1:
-                unit.append(splitted_value[0]) # for area and volume revit return unit
+                unit.append(splitted_value[0]) # for area revit return unit
             else:
-                unitype.append(len_para.DisplayUnitType) # for length unit is not returned so we use unit type
+                unittype.append(len_para.DisplayUnitType) # for length and volume unit is not returned so we use unit type
 
             total_length+=length
 
@@ -69,7 +69,7 @@ if unit:
     else:
         reqd_unit = unit[0]
 else:
-    unittype = list(set(unitype))
+    unittype = list(set(unittype))
     if len(unittype) > 1:
         print("Some issue")
     else:
