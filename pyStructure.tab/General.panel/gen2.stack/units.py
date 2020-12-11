@@ -1,11 +1,11 @@
 from pyrevit import revit,DB
 
 
-def formatter_square(unit):
-    return u'{0}\xb2'.format(unit)
+def formatter_square(string):
+    return u'{0}\xb2'.format(string)
 
-def formatter_cube(unit):
-    return u'{0}\xb3'.format(unit)
+def formatter_cube(string):
+    return u'{0}\xb3'.format(string)
 
 def unit_from_type(display_unit_type):
     if display_unit_type == DB.DisplayUnitType.DUT_MILLIMETERS:
@@ -84,7 +84,7 @@ def total(doc,unit_type,selection,builtin_enum):
                         exitscript=False)
                 warning_count+=1
     
-    dut = para.DisplayUnitType
+    dut = para.DisplayUnitType # will be same for all elements
     total_quant = round(DB.UnitUtils.ConvertFromInternalUnits(total_quant,para.DisplayUnitType),4)
     try:
         formatted_total_quant = str(total_quant) + " " + unit_from_type(dut)

@@ -30,6 +30,6 @@ total_quant,warning_count = units.total(doc,"length",selection,builtin_enum)
 if total_quant:
     forms.alert("Total length is {0}".format(total_quant),
                     exitscript=True)
-else:
+else: # is this needed now?
     forms.alert("Total area negligible in current units\n Change project units for result"
                                                     ,exitscript=True)
