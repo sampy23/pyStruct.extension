@@ -1,5 +1,5 @@
 from pyrevit import revit,DB
-
+from pyrevit import forms
 
 def formatter_square(string):
     return u'{0}\xb2'.format(string)
@@ -69,7 +69,7 @@ def conv_unit_type(quant_type):
     elif quant_type == "volume":
         return DB.UnitType.UT_Volume
         
-def total(doc,unit_type,selection,builtin_enum):
+def total(selection,builtin_enum):
     warning_count = 0 # warning fuse
     total_quant = 0.0
 
@@ -78,22 +78,15 @@ def total(doc,unit_type,selection,builtin_enum):
         if para:
             quant = para.AsDouble() # AsValueString() not recommended
             total_quant+=quant
+            dut = para.DisplayUnitType # will be same for all elements
         else:
-            if warning_count < 10: # we don't wish to bomb the user
-                forms.alert("Warning!!! {0} in the selection has no volume parameter".format(ele.Category.Name),
-                        exitscript=False)
-                warning_count+=1
-    
-    dut = para.DisplayUnitType # will be same for all elements
-    total_quant = round(DB.UnitUtils.ConvertFromInternalUnits(total_quant,para.DisplayUnitType),4)
-    try:
-        formatted_total_quant = str(total_quant) + " " + unit_from_type(dut)
-    except: # for none case
-        formatted_total_quant = str(total_quant)
-
-    # above three lines & function "unit_from_type" can be replaced with follwing two lines if unit symbol is turned on
-    # units = doc.GetUnits()
-    # formatted_total_quant = DB.UnitFormatUtils.Format(units, conv_unit_type(unit_type), total_quant, False, False)
-
-    return formatted_total_quant,warning_count
-
+            warning_count+=1
+    if total_quant:
+        total_quant = round(DB.UnitUtils.ConvertFromInternalUnits(total_quant,dut),4)
+        try:
+            formatted_total_quant = str(total_quant) + " " + unit_from_type(dut)
+        except: # for none case
+            formatted_total_quant = str(total_quant)
+        return formatted_total_quant,warning_count
+    else:
+        return None,None
