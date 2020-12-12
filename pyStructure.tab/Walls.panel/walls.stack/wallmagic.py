@@ -6,6 +6,8 @@ def unit_from_type(display_unit_type):
         return "mm" 
     elif display_unit_type == DB.DisplayUnitType.DUT_METERS:
         return "meters"
+    elif display_unit_type == DB.DisplayUnitType.DUT_METERS_CENTIMETERS:
+        return "meters_" # _ to distinguish from meters
     elif display_unit_type == DB.DisplayUnitType.DUT_CENTIMETERS:
         return "cm"
     elif display_unit_type == DB.DisplayUnitType.DUT_DECIMETERS:
@@ -18,6 +20,8 @@ def type_from_unit(unit_type):
         return DB.DisplayUnitType.DUT_MILLIMETERS
     elif unit_type == "meters":
         return  DB.DisplayUnitType.DUT_METERS
+    elif unit_type == "meters_":
+        return  DB.DisplayUnitType.DUT_METERS_CENTIMETERS
     elif unit_type == "cm": 
         return DB.DisplayUnitType.DUT_CENTIMETERS
     elif unit_type == "dm":
