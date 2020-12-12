@@ -9,7 +9,7 @@ import os
 
 dir_name = os.path.dirname(sys.path[0])
 sys.path.append(dir_name)
-import units
+import units # imported from one directory above by appending the path to sys
 
 # Getting selection from user
 __context__ = 'Selection'
