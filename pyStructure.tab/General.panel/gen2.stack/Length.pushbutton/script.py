@@ -9,7 +9,7 @@ import os
 
 dir_name = os.path.dirname(sys.path[0])
 sys.path.append(dir_name)
-import units
+import units # imported from one directory above by appending the path to sys
 
 # Getting selection from user
 __context__ = 'Selection'
@@ -25,11 +25,13 @@ if isinstance(curview, DB.ViewSheet):
 selection = revit.get_selection()
 builtin_enum =DB.BuiltInParameter.CURVE_ELEM_LENGTH
    
-total_quant,warning_count = units.total(doc,"length",selection,builtin_enum)
-
+total_quant,warning_count = units.total(selection,builtin_enum)
 if total_quant:
-    forms.alert("Total length is {0}".format(total_quant),
-                    exitscript=True)
-else: # is this needed now?
-    forms.alert("Total area negligible in current units\n Change project units for result"
-                                                    ,exitscript=True)
+    if warning_count: # if some selected element has no associated parameter
+        forms.alert("Total length is {0} but {1} items didnot had any associated length parameter ".\
+                                                                    format(total_quant,warning_count),exitscript=True)
+    else:
+        forms.alert("Total length is {0}".format(total_quant,warning_count),
+                exitscript=True)
+else:
+    forms.alert("No value found for selected item",exitscript=True)

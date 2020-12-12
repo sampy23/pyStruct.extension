@@ -25,11 +25,13 @@ if isinstance(curview, DB.ViewSheet):
 selection = revit.get_selection()
 builtin_enum =DB.BuiltInParameter.HOST_AREA_COMPUTED
    
-total_quant,warning_count = units.total(doc,"area",selection,builtin_enum)
-
+total_quant,warning_count = units.total(selection,builtin_enum)
 if total_quant:
-    forms.alert("Total area is {0}".format(total_quant),
-                    exitscript=True)
-else: # is this needed now?
-    forms.alert("Total area negligible in current units\n Change project units for result"
-                                                    ,exitscript=True)
+    if warning_count: # if some selected element has no associated parameter
+        forms.alert("Total area is {0} but {1} items didnot had any associated area parameter ".\
+                                                                    format(total_quant,warning_count),exitscript=True)
+    else:
+        forms.alert("Total area is {0}".format(total_quant,warning_count),
+                exitscript=True)
+else:
+    forms.alert("No value found for selected item",exitscript=True)
