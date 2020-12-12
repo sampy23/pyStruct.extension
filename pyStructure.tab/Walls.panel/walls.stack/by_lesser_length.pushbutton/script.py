@@ -20,30 +20,4 @@ if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
 
-walls = \
-        DB.FilteredElementCollector(doc,curview.Id)\
-          .OfCategory(DB.BuiltInCategory.OST_Walls)\
-          .WhereElementIsNotElementType()\
-          .ToElements()
-if walls:
-    target_parameter =  DB.BuiltInParameter.CURVE_ELEM_LENGTH 
-    cur_units = wallmagic.get_type(walls[0],target_parameter)
-    length = float(forms.ask_for_string("Enter length in {0}".format(cur_units)))
-    length_feet = wallmagic.convert_to_internal(length,cur_units)
-    param_filter = wallmagic.filter_rule(target_parameter,DB.FilterNumericLessOrEqual,length_feet)
-    
-    same_cat_elements = \
-            DB.FilteredElementCollector(doc,curview.Id)\
-            .OfCategory(DB.BuiltInCategory.OST_Walls)\
-            .WhereElementIsNotElementType()\
-            .WherePasses(param_filter)\
-            .ToElements()   
-            
-    filered_elements = [i.Id for i in same_cat_elements]    
-    num_walls = len(filered_elements)
-    revit.get_selection().set_to(filered_elements) 
-
-    wallmagic.print_output(num_walls,length,cur_units,"<=")
-else:
-    forms.alert("No wall found in current view",
-                exitscript=True)
+wallmagic.action(doc,curview,DB.FilterNumericLessOrEqual,"<=")
