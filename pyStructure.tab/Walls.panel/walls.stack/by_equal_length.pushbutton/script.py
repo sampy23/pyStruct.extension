@@ -19,4 +19,5 @@ curview = doc.ActiveView # gets current view
 if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
+                
 wallmagic.action(doc,curview,DB.FilterNumericEquals,"")
