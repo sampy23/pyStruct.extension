@@ -123,9 +123,7 @@ if selected_switch_parameter in ["Z offset value",'Elevation at top','Elevation 
     if len(elementids) > 1: # there atleast one element selected
         uidoc.Selection.SetElementIds(elementids)
     else:
-        forms.alert("No other {0} have {1} value \"{2}\"".\
-                                        format(category_name,selected_switch_parameter.lower(),target_parameter_value)\
-                                        ,exitscript=True)
+        forms.alert("Match Not Found",exitscript=True)
 
 else :#  value Strings
     """This param equality for this type is not available so we go for for loop"""
@@ -139,6 +137,4 @@ else :#  value Strings
     if len(collect_eleid) > 1: # there atleast one element selected
         revit.get_selection().set_to(collect_eleid) 
     else:
-        forms.alert("No other {0} have {1} value \"{2}\"".\
-                                        format(category_name,selected_switch_parameter.lower(),target_parameter_value)\
-                                        ,exitscript=True)
+        forms.alert("Match Not Found",exitscript=True)
