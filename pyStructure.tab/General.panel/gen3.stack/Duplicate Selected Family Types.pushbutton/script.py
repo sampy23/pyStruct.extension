@@ -1,5 +1,5 @@
 __doc__= """Duplicate selected family type under a category"""
-__title__="Duplicate\nView" #Title of the extension
+__title__="Duplicate\nFamily Typed" #Title of the extension
 
 from pyrevit import revit, DB
 from pyrevit import forms
