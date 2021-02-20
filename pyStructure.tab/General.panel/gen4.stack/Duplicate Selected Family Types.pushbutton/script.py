@@ -18,7 +18,7 @@ if elements: # if elements under different category are selected null is returne
 
     element_types = DB.FilteredElementCollector(doc).OfCategoryId(cat_id).WhereElementIsElementType().ToElements()
 
-    num = int(forms.ask_for_string("Enter number of views"))
+    num = int(forms.ask_for_string("Enter number of duplicates"))
     name_list = [DB.Element.Name.__get__(ele) for ele in element_types]
 
     with DB.Transaction(doc, 'Change Name') as t:
