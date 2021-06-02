@@ -1,4 +1,4 @@
-__doc__="This addin finds coordinate of selected piles and columns if units are in mm"
+__doc__="This addin finds coordinate of selected piles and columns in mm"
 __title__="Pile/Column\nCordinates" #Title of the extension
 __author__ = "Shahabaz Sha"
 
@@ -6,19 +6,11 @@ from pyrevit import forms
 from pyrevit import revit, DB
 import math
 
-def rad_deg(angle):
-    """Converts radian to angle"""
-    return angle * 360 / (2 * math.pi)
-
-def deg_rad(angle):
-    """Converts radian to angle"""
-    return angle * (2 * math.pi) / 360 
-
 def find_cord(x,y,theta,bp_x,bp_y):
     rotated = [math.cos(theta) * x + math.sin(theta) * y,-math.sin(theta)*x + math.cos(theta)*y] # we are multiplying base point coordinates
                                                                                                  # with inverse of rotational matrix to get rotated coordinates
     bp_cord = [bp_x,bp_y]
-    result = [round(i) for i in [rotated[0] + bp_cord[0],rotated[1] + bp_cord[1]]] # then we will add this with base point coordinates to get output
+    result = [i for i in [rotated[0] + bp_cord[0],rotated[1] + bp_cord[1]]] # then we will add this with base point coordinates to get output
     return (result[1],result[0])
 
 # Getting selection from user
@@ -107,9 +99,9 @@ for ele in selection:
     category = ele.Category.Name
     if category in ["Structural Columns","Structural Foundations"]:
         # for foundation and columns
-        x = ele.Location.Point.X*304.8
-        y = ele.Location.Point.Y*304.8
-        z = ele.Location.Point.Z*304.8
+        x = ele.Location.Point.X
+        y = ele.Location.Point.Y
+        z = ele.Location.Point.Z
         X.append(x)
         Y.append(y)
 
@@ -120,9 +112,9 @@ for loc in locations:
         sp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()*304.8
         sp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()*304.8
     else: # this is basepont
-        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble()*304.8
-        bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()*304.8
-        bp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()*304.8
+        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble()
+        bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()
+        bp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()
         angle = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ANGLETON_PARAM).AsDouble()
 
 with DB.Transaction(doc, 'Assign Coords') as t:
@@ -130,8 +122,8 @@ with DB.Transaction(doc, 'Assign Coords') as t:
         t.Start()
         for (idx, element), x, y in zip(enumerate(selection.elements),X,Y):
             tup = find_cord(x,y,angle,bp_ewest,bp_nsouth)
-            north = tup[0]
-            east = tup[1]
+            north = round(tup[0]*304.8,1) # convert feet to mm
+            east = round(tup[1]*304.8,1) # convert feet to mm
             params_1 = element.GetParameters("North_Coord")
             params_2 = element.GetParameters("East_Coord")
             for param_1,param_2 in zip(params_1,params_2):
