@@ -112,13 +112,10 @@ for loc in locations:
         sp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()*304.8
         sp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()*304.8
     else: # this is basepont
-        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble()
-        bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()
+        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble() - loc.Position.Y # updating the coordinates required if the basepoint is moved unclipped
+        bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble() - loc.Position.X
         bp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()
         angle = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ANGLETON_PARAM).AsDouble()
-        # updating the coordinates required if the basepoint is moved unclipped
-        X = [i + loc.Position.X for i in X] 
-        Y = [j + loc.Position.X for j in Y]
 
 with DB.Transaction(doc, 'Assign Coords') as t:
     try:
