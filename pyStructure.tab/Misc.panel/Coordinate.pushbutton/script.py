@@ -6,9 +6,12 @@ from pyrevit import forms
 from pyrevit import revit, DB
 import math
 
+def rotate(x,y,theta):
+    rotated = [math.cos(theta) * x + math.sin(theta) * y,-math.sin(theta)*x + math.cos(theta)*y] # we are multiplying base point coordinates (XYZ)
+                                                                                                 # with inverse of rotational matrix to get rotated coordinates or survey point coordinates
+    return rotated
 def find_cord(x,y,theta,bp_x,bp_y):
-    rotated = [math.cos(theta) * x + math.sin(theta) * y,-math.sin(theta)*x + math.cos(theta)*y] # we are multiplying base point coordinates
-                                                                                                 # with inverse of rotational matrix to get rotated coordinates
+    rotated = rotate(x,y,theta)
     bp_cord = [bp_x,bp_y]
     result = [i for i in [rotated[0] + bp_cord[0],rotated[1] + bp_cord[1]]] # then we will add this with base point coordinates to get output
     return (result[1],result[0])
@@ -112,11 +115,10 @@ for loc in locations:
         sp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()*304.8
         sp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()*304.8
     else: # this is basepont
-        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble() - loc.Position.Y # updating the coordinates required if the basepoint is moved unclipped
-        bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble() - loc.Position.X
-        bp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()
         angle = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ANGLETON_PARAM).AsDouble()
-
+        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[1] # updating the coordinates required if the basepoint is moved unclipped
+        bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[0]
+        bp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()
 with DB.Transaction(doc, 'Assign Coords') as t:
     try:
         t.Start()
