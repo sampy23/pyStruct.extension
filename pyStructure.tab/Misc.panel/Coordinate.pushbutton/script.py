@@ -24,8 +24,13 @@ app = doc.Application
 
 X = []
 Y = []
-selection = revit.get_selection()
-
+user_selection = revit.get_selection()
+selection = []
+for ele in user_selection:
+    category = ele.Category.Name
+    if category in ["Structural Columns","Structural Foundations"]:
+        selection.append(ele)
+        
 sharedParameterFile = app.OpenSharedParameterFile()
 myGroups = sharedParameterFile.Groups
 
@@ -99,14 +104,12 @@ with DB.Transaction(doc, 'Add Parameter') as t:
         #             ok=True, yes=False, no=False)
 
 for ele in selection:
-    category = ele.Category.Name
-    if category in ["Structural Columns","Structural Foundations"]:
-        # for foundation and columns
-        x = ele.Location.Point.X
-        y = ele.Location.Point.Y
-        z = ele.Location.Point.Z
-        X.append(x)
-        Y.append(y)
+    # for foundation and columns
+    x = ele.Location.Point.X
+    y = ele.Location.Point.Y
+    z = ele.Location.Point.Z
+    X.append(x)
+    Y.append(y)
 
 locations = DB.FilteredElementCollector(doc).OfClass(DB.BasePoint).ToElements()
 for loc in locations:
@@ -116,13 +119,15 @@ for loc in locations:
         sp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()*304.8
     else: # this is basepont
         angle = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ANGLETON_PARAM).AsDouble()
-        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[1] # updating the coordinates required if the basepoint is moved unclipped
+        # updating the coordinates required if the basepoint is moved unclipped
+        # XYZ in revit is always measured horizintal and vertical to viewer ie from Base point
+        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[1] 
         bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[0]
         bp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()
 with DB.Transaction(doc, 'Assign Coords') as t:
     try:
         t.Start()
-        for (idx, element), x, y in zip(enumerate(selection.elements),X,Y):
+        for element, x, y in zip(selection,X,Y):
             tup = find_cord(x,y,angle,bp_ewest,bp_nsouth)
             north = round(tup[0]*304.8,1) # convert feet to mm
             east = round(tup[1]*304.8,1) # convert feet to mm
@@ -135,5 +140,6 @@ with DB.Transaction(doc, 'Assign Coords') as t:
         t.Commit()
     except Exception as err:
         t.RollBack()
+        print(err)
         forms.alert('Non shared Parameter named North__Coord/East_Coord already exists',
                     ok=True, yes=False, no=False)
