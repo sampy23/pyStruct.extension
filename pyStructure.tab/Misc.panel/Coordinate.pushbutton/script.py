@@ -1,5 +1,5 @@
-__doc__="This addin finds coordinate of selected piles and columns in mm"
-__title__="Pile/Column\nCordinates" #Title of the extension
+__doc__="This addin finds coordinate of all piles/columns in mm"
+__title__="Pile/Column\nCoordinates" #Title of the extension
 __author__ = "Shahabaz Sha"
 
 from pyrevit import forms
@@ -16,20 +16,28 @@ def find_cord(x,y,theta,bp_x,bp_y):
     result = [i for i in [rotated[0] + bp_cord[0],rotated[1] + bp_cord[1]]] # then we will add this with base point coordinates to get output
     return (result[1],result[0])
 
-# Getting selection from user
-__context__ = 'Selection'
-
 doc =__revit__.ActiveUIDocument.Document
 app = doc.Application
 
+# Creating a dictionary
+options_category = {'Structural Columns': DB.BuiltInCategory.OST_StructuralColumns,
+    'Foundation':DB.BuiltInCategory.OST_StructuralFoundation
+}
+
+selected_switch_category = \
+    forms.CommandSwitchWindow.show(sorted(options_category.keys()),
+        
+        message='Search for tag  in category:')
+
+target_category = options_category[selected_switch_category]
+
+selection = DB.FilteredElementCollector(doc)\
+                    .OfCategory(target_category)\
+                    .WhereElementIsNotElementType() \
+                    .ToElements()
+                    
 X = []
 Y = []
-user_selection = revit.get_selection()
-selection = []
-for ele in user_selection:
-    category = ele.Category.Name
-    if category in ["Structural Columns","Structural Foundations"]:
-        selection.append(ele)
 
 sharedParameterFile = app.OpenSharedParameterFile()
 myGroups = sharedParameterFile.Groups
@@ -105,11 +113,14 @@ with DB.Transaction(doc, 'Add Parameter') as t:
 
 for ele in selection:
     # for foundation and columns
-    x = ele.Location.Point.X
-    y = ele.Location.Point.Y
-    z = ele.Location.Point.Z
-    X.append(x)
-    Y.append(y)
+    try:
+        x = ele.Location.Point.X
+        y = ele.Location.Point.Y
+        z = ele.Location.Point.Z
+        X.append(x)
+        Y.append(y)
+    except: # to ignore rafts, pile caps and other unwanted foundations
+        pass
 
 locations = DB.FilteredElementCollector(doc).OfClass(DB.BasePoint).ToElements()
 for loc in locations:
