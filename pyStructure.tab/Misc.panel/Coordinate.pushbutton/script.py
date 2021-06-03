@@ -30,7 +30,7 @@ for ele in user_selection:
     category = ele.Category.Name
     if category in ["Structural Columns","Structural Foundations"]:
         selection.append(ele)
-        
+
 sharedParameterFile = app.OpenSharedParameterFile()
 myGroups = sharedParameterFile.Groups
 
@@ -143,3 +143,6 @@ with DB.Transaction(doc, 'Assign Coords') as t:
         print(err)
         forms.alert('Non shared Parameter named North__Coord/East_Coord already exists',
                     ok=True, yes=False, no=False)
+    else:
+        forms.alert('Task Succesfully Completed',
+            ok=True, yes=False, no=False)
