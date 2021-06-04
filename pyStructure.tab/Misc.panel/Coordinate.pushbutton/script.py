@@ -40,7 +40,11 @@ X = []
 Y = []
 
 sharedParameterFile = app.OpenSharedParameterFile()
-myGroups = sharedParameterFile.Groups
+if sharedParameterFile:
+    myGroups = sharedParameterFile.Groups
+else:
+    forms.alert('Shared parameter file doesnot exist',
+        ok=True, yes=False, no=False)
 
 try:
     myGroup = myGroups.Create( "pystructure" )
@@ -120,6 +124,7 @@ for ele in selection:
         X.append(x)
         Y.append(y)
     except: # to ignore rafts, pile caps and other unwanted foundations
+        # print(ele.Name)
         pass
 
 locations = DB.FilteredElementCollector(doc).OfClass(DB.BasePoint).ToElements()
