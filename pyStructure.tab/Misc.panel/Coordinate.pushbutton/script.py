@@ -18,6 +18,16 @@ def find_cord(x,y,theta,bp_x,bp_y):
 
 doc =__revit__.ActiveUIDocument.Document
 app = doc.Application
+                 
+X = []
+Y = []
+
+sharedParameterFile = app.OpenSharedParameterFile()
+if sharedParameterFile:
+    myGroups = sharedParameterFile.Groups
+else:
+    forms.alert('Shared parameter file doesnot exist',
+        ok=True, yes=False, no=False,exitscript= True)
 
 # Creating a dictionary
 options_category = {'Structural Columns': DB.BuiltInCategory.OST_StructuralColumns,
@@ -35,16 +45,6 @@ selection = DB.FilteredElementCollector(doc)\
                     .OfCategory(target_category)\
                     .WhereElementIsNotElementType() \
                     .ToElements()
-                    
-X = []
-Y = []
-
-sharedParameterFile = app.OpenSharedParameterFile()
-if sharedParameterFile:
-    myGroups = sharedParameterFile.Groups
-else:
-    forms.alert('Shared parameter file doesnot exist',
-        ok=True, yes=False, no=False)
 
 try:
     myGroup = myGroups.Create( "pystructure" )
@@ -124,8 +124,8 @@ for ele in selection:
         X.append(x)
         Y.append(y)
     except: # to ignore rafts, pile caps and other unwanted foundations
-        # print(ele.Name)
-        pass
+        X.append("")
+        Y.append("")
 
 locations = DB.FilteredElementCollector(doc).OfClass(DB.BasePoint).ToElements()
 for loc in locations:
@@ -144,15 +144,16 @@ with DB.Transaction(doc, 'Assign Coords') as t:
     try:
         t.Start()
         for element, x, y in zip(selection,X,Y):
-            tup = find_cord(x,y,angle,bp_ewest,bp_nsouth)
-            north = round(tup[0]*304.8,1) # convert feet to mm
-            east = round(tup[1]*304.8,1) # convert feet to mm
-            params_1 = element.GetParameters("North_Coord")
-            params_2 = element.GetParameters("East_Coord")
-            for param_1,param_2 in zip(params_1,params_2):
-                if param_1.IsShared and param_2.IsShared:
-                    param_1.Set(str(north))
-                    param_2.Set(str(east))
+            if x and y: # to ignore data of pile caps and other with no coordinates
+                tup = find_cord(x,y,angle,bp_ewest,bp_nsouth)
+                north = round(tup[0]*304.8,1) # convert feet to mm
+                east = round(tup[1]*304.8,1) # convert feet to mm
+                params_1 = element.GetParameters("North_Coord")
+                params_2 = element.GetParameters("East_Coord")
+                for param_1,param_2 in zip(params_1,params_2):
+                    if param_1.IsShared and param_2.IsShared:
+                        param_1.Set(str(north))
+                        param_2.Set(str(east))
         t.Commit()
     except Exception as err:
         t.RollBack()
