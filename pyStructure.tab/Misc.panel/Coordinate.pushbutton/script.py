@@ -146,8 +146,8 @@ with DB.Transaction(doc, 'Assign Coords') as t:
         for element, x, y in zip(selection,X,Y):
             if x and y: # to ignore data of pile caps and other with no coordinates
                 tup = find_cord(x,y,angle,bp_ewest,bp_nsouth)
-                north = round(tup[0]*304.8,1) # convert feet to mm
-                east = round(tup[1]*304.8,1) # convert feet to mm
+                north = int(tup[0]*304.8) # convert feet to mm
+                east = int(tup[1]*304.8) # convert feet to mm
                 params_1 = element.GetParameters("North_Coord")
                 params_2 = element.GetParameters("East_Coord")
                 for param_1,param_2 in zip(params_1,params_2):
