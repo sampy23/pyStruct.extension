@@ -1,4 +1,4 @@
-__doc__="This addin reads data from excel and create an excel file"
+__doc__="This addin reads data from revit and create an excel file"
 __title__="Sheet To\nExcel" #Title of the extension
 __author__ = "Shahabaz Sha"
 
