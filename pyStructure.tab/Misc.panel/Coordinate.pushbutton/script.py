@@ -55,8 +55,8 @@ except Exception as e:
         pass  # Parameter group already exists
         # forms.alert("Parameter group already exists",title="Error",ok = True,yes = False,no = False)
 else:
-    option_1 = DB.ExternalDefinitionCreationOptions("North_Coord", DB.ParameterType.Text)
-    option_2 = DB.ExternalDefinitionCreationOptions("East_Coord", DB.ParameterType.Text)
+    option_1 = DB.ExternalDefinitionCreationOptions("North_Coord", DB.ParameterType.Number)
+    option_2 = DB.ExternalDefinitionCreationOptions("East_Coord", DB.ParameterType.Number)
 
     option_1.UserModifiable = False
     option_1.Description = "Coordinates of piles/column"
@@ -146,14 +146,14 @@ with DB.Transaction(doc, 'Assign Coords') as t:
         for element, x, y in zip(selection,X,Y):
             if x and y: # to ignore data of pile caps and other with no coordinates
                 tup = find_cord(x,y,angle,bp_ewest,bp_nsouth)
-                north = round(float(tup[0]*.3048),3) # convert feet to mm
-                east = round(float(tup[1]*.3048),3) # convert feet to mm
+                north = round(float(tup[0]*.3048),3) # convert feet to m
+                east = round(float(tup[1]*.3048),3) # convert feet to m
                 params_1 = element.GetParameters("North_Coord")
                 params_2 = element.GetParameters("East_Coord")
                 for param_1,param_2 in zip(params_1,params_2):
                     if param_1.IsShared and param_2.IsShared:
-                        param_1.Set(str(north))
-                        param_2.Set(str(east))
+                        param_1.Set(float(north))
+                        param_2.Set(float(east))
         t.Commit()
     except Exception as err:
         t.RollBack()
