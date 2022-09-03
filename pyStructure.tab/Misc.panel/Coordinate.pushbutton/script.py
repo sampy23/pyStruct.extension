@@ -1,4 +1,4 @@
-__doc__="This addin finds coordinate of all piles/columns in mm"
+__doc__="This addin finds coordinate of all piles/columns in m"
 __title__="Pile/Column\nCoordinates" #Title of the extension
 __author__ = "Shahabaz Sha"
 
@@ -130,9 +130,9 @@ for ele in selection:
 locations = DB.FilteredElementCollector(doc).OfClass(DB.BasePoint).ToElements()
 for loc in locations:
     if loc.IsShared:# this is surveypoint
-        sp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble()*304.8
-        sp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()*304.8
-        sp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()*304.8
+        sp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble()*.3048
+        sp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()*.3048
+        sp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()*.3048
     else: # this is basepont
         angle = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ANGLETON_PARAM).AsDouble()
         # updating the coordinates required if the basepoint is moved unclipped
@@ -146,8 +146,8 @@ with DB.Transaction(doc, 'Assign Coords') as t:
         for element, x, y in zip(selection,X,Y):
             if x and y: # to ignore data of pile caps and other with no coordinates
                 tup = find_cord(x,y,angle,bp_ewest,bp_nsouth)
-                north = int(tup[0]*304.8) # convert feet to mm
-                east = int(tup[1]*304.8) # convert feet to mm
+                north = round(float(tup[0]*.3048),3) # convert feet to mm
+                east = round(float(tup[1]*.3048),3) # convert feet to mm
                 params_1 = element.GetParameters("North_Coord")
                 params_2 = element.GetParameters("East_Coord")
                 for param_1,param_2 in zip(params_1,params_2):
