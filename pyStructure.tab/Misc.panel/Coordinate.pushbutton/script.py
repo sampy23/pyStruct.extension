@@ -152,8 +152,8 @@ with DB.Transaction(doc, 'Assign Coords') as t:
                 params_2 = element.GetParameters("East_Coord")
                 for param_1,param_2 in zip(params_1,params_2):
                     if param_1.IsShared and param_2.IsShared:
-                        param_1.Set(float(north))
-                        param_2.Set(float(east))
+                        param_1.Set(str(north))
+                        param_2.Set(str(east))
         t.Commit()
     except Exception as err:
         t.RollBack()
