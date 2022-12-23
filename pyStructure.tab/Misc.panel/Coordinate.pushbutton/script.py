@@ -134,12 +134,13 @@ for loc in locations:
         sp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble()*.3048
         sp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()*.3048
     else: # this is basepont
-        angle = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ANGLETON_PARAM).AsDouble()
-        # updating the coordinates required if the basepoint is moved unclipped
-        # XYZ in revit is always measured horizintal and vertical to viewer ie from Base point
-        bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[1] 
-        bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[0]
-        bp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()
+        if loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ANGLETON_PARAM) != None: # To check if the basepoint returned has value
+            angle = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ANGLETON_PARAM).AsDouble()
+            # updating the coordinates required if the basepoint is moved unclipped
+            # XYZ in revit is always measured horizintal and vertical to viewer ie from Base point
+            bp_nsouth = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_NORTHSOUTH_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[1] 
+            bp_ewest = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsDouble() - rotate(loc.Position.X,loc.Position.Y,angle)[0]
+            bp_elev = loc.get_Parameter(DB.BuiltInParameter.BASEPOINT_ELEVATION_PARAM).AsDouble()
 with DB.Transaction(doc, 'Assign Coords') as t:
     try:
         t.Start()
