@@ -47,26 +47,23 @@ selection = DB.FilteredElementCollector(doc)\
                     .ToElements()
 
 try:
-    myGroup = myGroups.Create( "pystructure" )
+    myGroup = myGroups.Create( "pystructure" ) # create new group
 except Exception as e:
     if len(str(e)):
         forms.alert(str(e),title="Error",ok = True,yes = False,no = False)
-    else:
-        pass  # Parameter group already exists
-        # forms.alert("Parameter group already exists",title="Error",ok = True,yes = False,no = False)
+    else:# Parameter group already exists
+        myGroup = myGroups.get_Item("pystructure") # if new group cant be created and it already exist retrieve it.
+        #forms.alert("Parameter group already exists",title="Error",ok = True,yes = False,no = False)
 else:
     option_1 = DB.ExternalDefinitionCreationOptions("North_Coord", DB.ParameterType.Length)
     option_2 = DB.ExternalDefinitionCreationOptions("East_Coord", DB.ParameterType.Length)
-
     option_1.UserModifiable = False
     option_1.Description = "Coordinates of piles/column"
-
     option_2.UserModifiable = False
     option_2.Description = "Coordinates of piles/column"
 
     myDefinition_ProductDate = myGroup.Definitions.Create(option_1)
     myDefinition_ProductDate = myGroup.Definitions.Create(option_2)
-
 
 #get the category and build a category set. 
 builtInCategory = DB.BuiltInCategory.OST_StructuralFoundation
@@ -76,15 +73,12 @@ cats = app.Create.NewCategorySet()
 cats.Insert(doc.Settings.Categories.get_Item(DB.BuiltInCategory.OST_StructuralFoundation))
 cats.Insert(doc.Settings.Categories.get_Item(DB.BuiltInCategory.OST_StructuralColumns))
 
-
-#txt group name 
-GroupName = sharedParameterFile.Groups.get_Item("pystructure")
 #txt parameter name
-externalDefinition_1 = GroupName.Definitions.get_Item("North_Coord")
-externalDefinition_2 = GroupName.Definitions.get_Item("East_Coord")
+externalDefinition_1 = myGroup.Definitions.get_Item("North_Coord")
+externalDefinition_2 = myGroup.Definitions.get_Item("East_Coord")
 
 
-# If shared parameter alreasdy exist in project, advice user to avoid duplication
+# If shared parameter already exist in project, advice user to avoid duplication
 for element in selection:
     params_1 = element.GetParameters("North_Coord")
     params_2 = element.GetParameters("East_Coord")
@@ -158,7 +152,6 @@ with DB.Transaction(doc, 'Assign Coords') as t:
         t.Commit()
     except Exception as err:
         t.RollBack()
-        print(err)
         forms.alert('Non shared Parameter named North__Coord/East_Coord already exists',
                     ok=True, yes=False, no=False)
     else:
