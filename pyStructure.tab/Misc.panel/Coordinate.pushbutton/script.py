@@ -94,8 +94,8 @@ with DB.Transaction(doc, 'Add Parameter') as t:
         # Create the new shared parameter 
         newInstanceBinding = app.Create.NewInstanceBinding(cats)
         # insert the new parameter into your project. 
-        doc.ParameterBindings.Insert(externalDefinition_1, newInstanceBinding, DB.BuiltInParameterGroup.PG_TEXT)
-        doc.ParameterBindings.Insert(externalDefinition_2, newInstanceBinding, DB.BuiltInParameterGroup.PG_TEXT)
+        doc.ParameterBindings.Insert(externalDefinition_1, newInstanceBinding, DB.BuiltInParameterGroup.PG_LENGTH)
+        doc.ParameterBindings.Insert(externalDefinition_2, newInstanceBinding, DB.BuiltInParameterGroup.PG_LENGTH)
 
         # complete transaction
         # set back original shared paramter. 
