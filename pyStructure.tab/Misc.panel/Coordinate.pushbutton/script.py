@@ -55,8 +55,8 @@ except Exception as e:
         pass  # Parameter group already exists
         # forms.alert("Parameter group already exists",title="Error",ok = True,yes = False,no = False)
 else:
-    option_1 = DB.ExternalDefinitionCreationOptions("North_Coord", DB.ParameterType.Text)
-    option_2 = DB.ExternalDefinitionCreationOptions("East_Coord", DB.ParameterType.Text)
+    option_1 = DB.ExternalDefinitionCreationOptions("North_Coord", DB.ParameterType.Length)
+    option_2 = DB.ExternalDefinitionCreationOptions("East_Coord", DB.ParameterType.Length)
 
     option_1.UserModifiable = False
     option_1.Description = "Coordinates of piles/column"
