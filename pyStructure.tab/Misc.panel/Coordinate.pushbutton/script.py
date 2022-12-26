@@ -77,15 +77,6 @@ cats.Insert(doc.Settings.Categories.get_Item(DB.BuiltInCategory.OST_StructuralCo
 externalDefinition_1 = myGroup.Definitions.get_Item("North_Coord")
 externalDefinition_2 = myGroup.Definitions.get_Item("East_Coord")
 
-
-# If shared parameter already exist in project, advice user to avoid duplication
-for element in selection:
-    params_1 = element.GetParameters("North_Coord")
-    params_2 = element.GetParameters("East_Coord")
-    if (len(params_1) > 1 or len(params_1) >1) :
-        forms.alert('Delete North__Coord/East_Coord from project parameter list to avoid duplication',
-            ok=True, yes=False, no=False,exitscript=True)
-
 # Create shared instance parameter. 
 # Start transaction in Revit.
 with DB.Transaction(doc, 'Add Parameter') as t:
@@ -97,17 +88,20 @@ with DB.Transaction(doc, 'Add Parameter') as t:
         doc.ParameterBindings.Insert(externalDefinition_1, newInstanceBinding, DB.BuiltInParameterGroup.PG_LENGTH)
         doc.ParameterBindings.Insert(externalDefinition_2, newInstanceBinding, DB.BuiltInParameterGroup.PG_LENGTH)
 
+        # If shared parameter already exist in project, advice user to avoid duplication
+        for element in selection:
+            params_1 = element.GetParameters("North_Coord")
+            params_2 = element.GetParameters("East_Coord")
+            if (len(params_1) > 1 or len(params_1) >1) :
+                forms.alert('Remove North_Coord & East_Coord from Project parameters and try again',
+                    ok=True, yes=False, no=False,exitscript=True)
+
         # complete transaction
         # set back original shared paramter. 
         t.Commit()
     except Exception as e:
         t.RollBack()
         forms.alert(str(e),title="Error",ok = True,yes = False,no = False)
-
-    else:
-        pass
-        # forms.alert('Parameters added successfully',
-        #             ok=True, yes=False, no=False)
 
 for ele in selection:
     # for foundation and columns
