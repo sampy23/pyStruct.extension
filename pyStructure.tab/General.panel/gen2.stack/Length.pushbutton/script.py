@@ -24,14 +24,18 @@ if isinstance(curview, DB.ViewSheet):
 
 selection = revit.get_selection()
 builtin_enum =DB.BuiltInParameter.CURVE_ELEM_LENGTH
-   
-total_quant,warning_count = genunits.total(selection,builtin_enum)
+units = revit.doc.GetUnits()
+length_ut = units.GetFormatOptions(DB.SpecTypeId.Length)
+unit_type = length_ut.GetUnitTypeId()
+unit = genunits.revit_unit(unit_type)
+total_quant,warning_count = genunits.total(selection,builtin_enum,unit_type)
 if total_quant:
+    formatted_total_quant = str(total_quant) + " " + unit
     if warning_count: # if some selected element has no associated parameter
         forms.alert("Total length is {0} but {1} items didnot had any associated length parameter ".\
-                                                                    format(total_quant,warning_count),exitscript=True)
+                                                                    format(formatted_total_quant,warning_count),exitscript=True)
     else:
-        forms.alert("Total length is {0}".format(total_quant,warning_count),
+        forms.alert("Total length is {0}".format(formatted_total_quant,warning_count),
                 exitscript=True)
 else:
     forms.alert("No value found for selected item",exitscript=True)
