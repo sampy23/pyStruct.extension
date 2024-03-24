@@ -23,9 +23,9 @@ if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
 
-selection = revit.get_selection()
+selection = revit.get_selection() #get selection
 builtin_enum =DB.BuiltInParameter.CURVE_ELEM_LENGTH
-doc_units = revit.doc.GetUnits()
+doc_units = revit.doc.GetUnits() #get document units
 if HOST_APP.is_newer_than(2021):
     length_ut = doc_units.GetFormatOptions(DB.SpecTypeId.Length)
     unit_type = length_ut.GetUnitTypeId()
@@ -33,8 +33,9 @@ else:
     length_ut = doc_units.GetFormatOptions(DB.UnitType.UT_Length)
     unit_type = length_ut.DisplayUnits
 
-unit_text = genunits.revit_unit(unit_type)
+unit_text = genunits.revit_unit(unit_type) # get the unit in text form
 total_quant,warning_count = genunits.total(selection,builtin_enum,unit_type)
+
 if total_quant:
     formatted_total_quant = str(total_quant) + " " + unit_text
     if warning_count: # if some selected element has no associated parameter
