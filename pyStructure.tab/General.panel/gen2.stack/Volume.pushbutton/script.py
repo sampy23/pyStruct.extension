@@ -36,7 +36,10 @@ else:
 unit_text = genunits.revit_unit(unit_type,quant_type = 'volume') # get the unit in text form
 total_quant,warning_count = genunits.total(selection,builtin_enum,unit_type)
 if total_quant:
-    formatted_total_quant = str(total_quant) + " " + unit_text
+    if unit_text:
+        formatted_total_quant = str(total_quant) + " " + unit_text
+    else:
+        formatted_total_quant = str(total_quant) + " units"
     if warning_count: # if some selected element has no associated parameter
         forms.alert("Total volume is {0} but {1} items didnot had any associated volume parameter ".\
                                                                     format(formatted_total_quant,warning_count),exitscript=True)
