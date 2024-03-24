@@ -4,6 +4,7 @@ __author__ = "Shahabaz Sha"
 
 from pyrevit import revit, DB, UI
 from pyrevit import forms
+from pyrevit import HOST_APP
 import sys
 import os
 
@@ -24,8 +25,16 @@ if isinstance(curview, DB.ViewSheet):
 
 selection = revit.get_selection()
 builtin_enum =DB.BuiltInParameter.HOST_AREA_COMPUTED
-   
-total_quant,warning_count = genunits.total(selection,builtin_enum)
+doc_units = revit.doc.GetUnits() #get document units
+if HOST_APP.is_newer_than(2021):
+    area_ut = doc_units.GetFormatOptions(DB.SpecTypeId.Area)
+    unit_type = area_ut.GetUnitTypeId()
+else:
+    area_ut = doc_units.GetFormatOptions(DB.UnitType.UT_Area)
+    unit_type = area_ut.DisplayUnits
+
+unit_text = genunits.revit_unit(unit_type,dimension = 'area') # get the unit in text form
+total_quant,warning_count = genunits.total(selection,builtin_enum,unit_type)
 if total_quant:
     if warning_count: # if some selected element has no associated parameter
         forms.alert("Total area is {0} but {1} items didnot had any associated area parameter ".\

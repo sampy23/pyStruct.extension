@@ -8,7 +8,7 @@ def formatter_square(string):
 def formatter_cube(string):
     return u'{0}\xb3'.format(string)
 
-def revit_unit(unit_type):
+def revit_unit(unit_type,dimension):
     if HOST_APP.is_newer_than(2021):
         length_metric_units = {DB.UnitTypeId.Meters:'m',
                                 DB.UnitTypeId.Centimeters:'cm',
@@ -19,6 +19,11 @@ def revit_unit(unit_type):
                                 DB.UnitTypeId.Inches:'inches',
                                 DB.UnitTypeId.FractionalInches:'inches',
                                 DB.UnitTypeId.Custom:'custom'}
+        area_metric_units = {   DB.UnitTypeId.SquareMeters:formatter_square("m") ,
+                                DB.UnitTypeId.SquareCentimeters:formatter_square("cm"),
+                                DB.UnitTypeId.SquareMillimeters:formatter_square("mm")}
+        area_imperial_units = {   DB.UnitTypeId.SquareFeet:formatter_square("ft") ,
+                                DB.UnitTypeId.SquareInches:formatter_square("in"),}
     else:
         length_metric_units = {DB.DisplayUnitType.DUT_METERS:'m',
                                 DB.DisplayUnitType.DUT_CENTIMETERS:'cm',
@@ -30,13 +35,28 @@ def revit_unit(unit_type):
                                 DB.DisplayUnitType.DUT_DECIMAL_INCHES:"inches",
                                 DB.DisplayUnitType.DUT_FRACTIONAL_INCHES:"inches",
                                  DB.DisplayUnitType.DUT_CUSTOM: "custom"}
+        area_metric_units = {  DB.DisplayUnitType.DUT_SQUARE_METERS:formatter_square("m") ,
+                                DB.DisplayUnitType.DUT_SQUARE_CENTIMETERS:formatter_square("cm"),
+                                DB.DisplayUnitType.DUT_SQUARE_MILLIMETERS:formatter_square("mm")}
+        area_imperial_units = { DB.DisplayUnitType.DUT_SQUARE_FEET:formatter_square("ft") ,
+                                DB.DisplayUnitType.DUT_SQUARE_INCHES:formatter_square("in"),}
+        
+    if dimension == 'length':
+        length_is_metric = unit_type in list(length_metric_units.keys())
+        length_is_imperial = unit_type in list(length_imperial_units.keys())
+        if length_is_metric:
+            return length_metric_units[unit_type]
+        elif length_is_imperial:
+            return length_imperial_units[unit_type]
     
-    length_is_metric = unit_type in list(length_metric_units.keys())
-    length_is_imperial = unit_type in list(length_imperial_units.keys())
-    if length_is_metric:
-        return length_metric_units[unit_type]
-    elif length_is_imperial:
-        return length_imperial_units[unit_type]
+    elif dimension == 'area':
+        area_is_metric = unit_type in list(area_metric_units.keys())
+        area_is_imperial = unit_type in list(area_imperial_units.keys())
+        if area_is_metric:
+            return area_metric_units[unit_type]
+        elif area_is_imperial:
+            return area_imperial_units[unit_type]    
+
 
     # elif display_unit_type == DB.DisplayUnitType.DUT_SQUARE_FEET:
     #     return formatter_square("ft")   
