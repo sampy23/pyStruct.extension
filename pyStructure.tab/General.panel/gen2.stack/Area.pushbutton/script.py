@@ -36,11 +36,12 @@ else:
 unit_text = genunits.revit_unit(unit_type,dimension = 'area') # get the unit in text form
 total_quant,warning_count = genunits.total(selection,builtin_enum,unit_type)
 if total_quant:
+    formatted_total_quant = str(total_quant) + " " + unit_text
     if warning_count: # if some selected element has no associated parameter
         forms.alert("Total area is {0} but {1} items didnot had any associated area parameter ".\
-                                                                    format(total_quant,warning_count),exitscript=True)
+                                                                    format(formatted_total_quant,warning_count),exitscript=True)
     else:
-        forms.alert("Total area is {0}".format(total_quant,warning_count),
+        forms.alert("Total area is {0}".format(formatted_total_quant,warning_count),
                 exitscript=True)
 else:
     forms.alert("No value found for selected item",exitscript=True)
