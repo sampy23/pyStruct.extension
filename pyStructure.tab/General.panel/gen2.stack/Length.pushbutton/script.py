@@ -33,7 +33,7 @@ else:
     length_ut = doc_units.GetFormatOptions(DB.UnitType.UT_Length)
     unit_type = length_ut.DisplayUnits
 
-unit_text = genunits.revit_unit(unit_type,dimension = 'length') # get the unit in text form
+unit_text = genunits.revit_unit(unit_type,quant_type = 'length') # get the unit in text form
 total_quant,warning_count = genunits.total(selection,builtin_enum,unit_type)
 
 if total_quant:
