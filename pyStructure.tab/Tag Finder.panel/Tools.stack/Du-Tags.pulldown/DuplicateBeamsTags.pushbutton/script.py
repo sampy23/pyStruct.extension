@@ -5,7 +5,8 @@ __author__ = "Shahabaz Sha"
 #pylint: disable=import-error,invalid-name
 from collections import namedtuple,Counter
 from pyrevit import revit, DB
-from pyrevit import forms
+from pyrevit import forms, HOST_APP
+from System.Collections.Generic import List
 
 Taggable = namedtuple('Taggable', ['tag_type', 'element_type'])
 
@@ -39,8 +40,12 @@ tagged_elements = []
 untagged_elements = []
 for eltid in target_tags:
     elt = revit.doc.GetElement(eltid)
-    if elt.TaggedLocalElementId != DB.ElementId.InvalidElementId:
-        tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)
+    if HOST_APP.is_newer_than(2022, or_equal=True):
+        if List[DB.ElementId](elt.GetTaggedLocalElementIds())[0] != DB.ElementId.InvalidElementId:
+            tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)
+    else:
+        if elt.TaggedLocalElementId != DB.ElementId.InvalidElementId:
+            tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)      
 
 dupes_id = [item for item, count in Counter(tagged_elements).items() if count > 1]
 
