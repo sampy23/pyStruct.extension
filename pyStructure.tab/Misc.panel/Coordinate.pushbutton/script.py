@@ -4,7 +4,9 @@ __author__ = "Shahabaz Sha"
 
 from pyrevit import forms
 from pyrevit import revit, DB
+from pyrevit import HOST_APP
 import math
+import sys
 
 def rotate(x,y,theta):
     rotated = [math.cos(theta) * x + math.sin(theta) * y,-math.sin(theta)*x + math.cos(theta)*y] # we are multiplying base point coordinates (XYZ)
@@ -55,8 +57,13 @@ except Exception as e:
         myGroup = myGroups.get_Item("pystructure") # if new group cant be created and it already exist retrieve it.
         #forms.alert("Parameter group already exists",title="Error",ok = True,yes = False,no = False)
 else:
-    option_1 = DB.ExternalDefinitionCreationOptions("North_Coord", DB.ParameterType.Length)
-    option_2 = DB.ExternalDefinitionCreationOptions("East_Coord", DB.ParameterType.Length)
+    if HOST_APP.is_newer_than(2021):
+        option_1 = DB.ExternalDefinitionCreationOptions("North_Coord", DB.SpecTypeId.Length)
+        option_2 = DB.ExternalDefinitionCreationOptions("East_Coord", DB.SpecTypeId.Length)
+    else:
+        option_1 = DB.ExternalDefinitionCreationOptions("North_Coord", DB.ParameterType.Length)
+        option_2 = DB.ExternalDefinitionCreationOptions("East_Coord", DB.ParameterType.Length)   
+
     option_1.UserModifiable = False
     option_1.Description = "Coordinates of piles/column"
     option_2.UserModifiable = False
@@ -102,6 +109,7 @@ with DB.Transaction(doc, 'Add Parameter') as t:
     except Exception as e:
         t.RollBack()
         forms.alert(str(e),title="Error",ok = True,yes = False,no = False)
+        sys.exit()
 
 for ele in selection:
     # for foundation and columns
