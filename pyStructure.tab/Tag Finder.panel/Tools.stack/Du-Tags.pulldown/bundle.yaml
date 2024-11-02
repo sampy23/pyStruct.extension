@@ -2,3 +2,4 @@ layout:
   - DuplicateBeamsTags
   - DuplicateColumnsTags
   - DuplicateWallsTags
+  - DuplicateRebarsTags
