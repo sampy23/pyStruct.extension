@@ -92,9 +92,14 @@ with DB.Transaction(doc, 'Add Parameter') as t:
         # Create the new shared parameter 
         newInstanceBinding = app.Create.NewInstanceBinding(cats)
         # insert the new parameter into your project. 
-        doc.ParameterBindings.Insert(externalDefinition_1, newInstanceBinding, DB.BuiltInParameterGroup.PG_LENGTH)
-        doc.ParameterBindings.Insert(externalDefinition_2, newInstanceBinding, DB.BuiltInParameterGroup.PG_LENGTH)
+        if HOST_APP.is_newer_than(2021):
+            doc.ParameterBindings.Insert(externalDefinition_1, newInstanceBinding, DB.GroupTypeId.Length)
+            doc.ParameterBindings.Insert(externalDefinition_2, newInstanceBinding, DB.GroupTypeId.Length) 
 
+        else:
+            doc.ParameterBindings.Insert(externalDefinition_1, newInstanceBinding, DB.BuiltInParameterGroup.PG_LENGTH)
+            doc.ParameterBindings.Insert(externalDefinition_2, newInstanceBinding, DB.BuiltInParameterGroup.PG_LENGTH) 
+ 
         # If shared parameter already exist in project, advice user to avoid duplication
         for element in selection:
             params_1 = element.GetParameters("North_Coord")
