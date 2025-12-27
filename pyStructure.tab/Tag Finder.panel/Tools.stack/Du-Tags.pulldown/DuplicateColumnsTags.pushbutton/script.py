@@ -41,12 +41,15 @@ tagged_elements = []
 untagged_elements = []
 for eltid in target_tags:
     elt = revit.doc.GetElement(eltid)
-    if HOST_APP.is_newer_than(2022, or_equal=True):
-        if List[DB.ElementId](elt.GetTaggedLocalElementIds())[0] != DB.ElementId.InvalidElementId:
-            tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)
+    if HOST_APP.is_newer_than(2023):
+        if elt.GetTaggedLocalElementIds() != DB.ElementId.InvalidElementId:
+            tagged_elements.append(List[DB.ElementId](elt.GetTaggedLocalElementIds())[0].IntegerValue)
+    elif HOST_APP.is_newer_than(2022, or_equal=True):
+        if elt.GetTaggedLocalElementIds() != DB.ElementId.InvalidElementId:
+            tagged_elements.append(List[DB.ElementId](elt.GetTaggedLocalElementIds())[0].IntegerValue)
     else:
         if elt.TaggedLocalElementId != DB.ElementId.InvalidElementId:
-            tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)   
+            tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)     
 
 dupes_id = [item for item, count in Counter(tagged_elements).items() if count > 1]
 
