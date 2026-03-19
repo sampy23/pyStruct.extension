@@ -1,40 +1,12 @@
 from pyrevit import revit, DB
 from pyrevit import forms
 
-def unit_from_type(display_unit_type):
-    if display_unit_type == DB.DisplayUnitType.DUT_MILLIMETERS:
-        return "mm" 
-    elif display_unit_type == DB.DisplayUnitType.DUT_METERS:
-        return "meters"
-    elif display_unit_type == DB.DisplayUnitType.DUT_METERS_CENTIMETERS:
-        return "meters_" # _ to distinguish from meters
-    elif display_unit_type == DB.DisplayUnitType.DUT_CENTIMETERS:
-        return "cm"
-    elif display_unit_type == DB.DisplayUnitType.DUT_DECIMETERS:
-        return "dm"
-    else: # anything other than above is assumed to be in feets.too bold?
-        return "feets"
-
-def type_from_unit(unit_type):
-    if unit_type == "mm":
-        return DB.DisplayUnitType.DUT_MILLIMETERS
-    elif unit_type == "meters":
-        return  DB.DisplayUnitType.DUT_METERS
-    elif unit_type == "meters_":
-        return  DB.DisplayUnitType.DUT_METERS_CENTIMETERS
-    elif unit_type == "cm": 
-        return DB.DisplayUnitType.DUT_CENTIMETERS
-    elif unit_type == "dm":
-        return DB.DisplayUnitType.DUT_DECIMETERS
-    else: # anything other than above is assumed to be in feets.so no need for conversion
-        return None
 
 def get_type(ele,builtin_enum):
-    dut = ele.Parameter[builtin_enum].DisplayUnitType
-    return unit_from_type(dut)
+    dut = ele.Parameter[builtin_enum].GetUnitTypeId()
+    return dut
 
-def convert_to_internal(value,unit_type):
-   dut = type_from_unit(unit_type)
+def convert_to_internal(value,dut):
    if dut:
        return DB.UnitUtils.ConvertToInternalUnits(value,dut) # converts 10mm to internal units (feet)
    else:
@@ -52,7 +24,7 @@ def print_output(num_walls,length,cur_units,equality):
     if num_walls >= 1:
         forms.alert("{} Walls of length{} {} {} selected!!!".format(num_walls,equality,length,cur_units))
     else:
-        forms.alert("No other walls of length {} {} m found!!!".format(equality,length))
+        forms.alert("No other walls of length {} {} found!!!".format(equality,length))
 
 def action(doc,curview,filter_class,eq_symbol):
     walls = \
@@ -63,7 +35,11 @@ def action(doc,curview,filter_class,eq_symbol):
     if walls:
         target_parameter =  DB.BuiltInParameter.CURVE_ELEM_LENGTH 
         cur_units = get_type(walls[0],target_parameter)
-        length = float(forms.ask_for_string("Enter length in {0}".format(cur_units)))
+        if cur_units:
+            unit_string = cur_units.TypeId
+            clean_unit = unit_string.split(":")[-1].split("-")[0]
+        length = float(forms.ask_for_string("Enter length in {0}".format(clean_unit)))
+
         length_feet = convert_to_internal(length,cur_units)
         param_filter = filter_rule(target_parameter,filter_class,length_feet)
         
@@ -78,7 +54,7 @@ def action(doc,curview,filter_class,eq_symbol):
         num_walls = len(filered_elements)
         revit.get_selection().set_to(filered_elements) 
 
-        print_output(num_walls,length,cur_units,eq_symbol)
+        print_output(num_walls,length,clean_unit,eq_symbol)
     else:
         forms.alert("No wall found in current view",
                     exitscript=True)
