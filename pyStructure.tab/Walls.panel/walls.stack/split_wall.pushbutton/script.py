@@ -1,12 +1,20 @@
 __title__ = "Wall Splitting Tool"
 __author__ = "Shahabaz Sha"
 
-from pyrevit import revit, DB
+from pyrevit import revit, DB, UI
 from pyrevit import forms
 
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 
+def select_walls():
+    try:
+        picked_refs = uidoc.Selection.PickObjects(UI.Selection.ObjectType.Element, "Select walls to split")
+        walls = [doc.GetElement(r) for r in picked_refs if isinstance(doc.GetElement(r), DB.Wall)]
+        return walls
+    except Exception as e:
+        forms.alert("Selection failed. \n\n{}".format(str(e)), exitscript=True)
+        return None
 
 def split_walls(selected_walls):
     """
@@ -146,14 +154,14 @@ def split_walls(selected_walls):
                 "Walls split successfully.\nTotal number of new walls are: {}".format(created_segment_count)
             )
 
-        except Exception as ex:
+        except Exception as e:
             if transaction.HasStarted():
                 transaction.RollBack()
 
-            forms.alert("Script failed.\n\n{}".format(str(ex)), exitscript=True)
+            forms.alert("Script failed.\n\n{}".format(str(e)), exitscript=True)
 
 
-selected_walls = revit.get_selection()
+selected_walls = select_walls()
 
 if not selected_walls:
     forms.alert(
